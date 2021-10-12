@@ -1,11 +1,12 @@
 //Both imports are needed junit testing.
-import static org.junit.Assert.*;
-import org.junit.Test;
+//import static org.junit.Assert.*;
+//import org.junit.Test;
 
 //This class contains all static calculations methods. This includes calculations like mean, median, mode, and range.
 public class calculations{
     public static void main(String args[]){
-       
+       //Initial load of data
+       Data testData = new Data("MemberAnalysis");
     }
 
     /** 
@@ -29,11 +30,12 @@ public class calculations{
     
     /** Testing for mean method. If using IDE like VSCode be sure to have junit-platform-console-standalone.jar file somewhere on the machine you are running this on.
      * Additionally have settings.json configured correctly.
-    @Test
+     */
+    //@Test
         public void meanTest(){
             double test[] = {2,4,5,6,7,10};
-            assertEquals(5.67, mean(test), 0.001);
+          //  assertEquals(5.67, mean(test), 0.001);
         }
-        */
+        
 }
 
