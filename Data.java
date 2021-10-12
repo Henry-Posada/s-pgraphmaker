@@ -3,7 +3,7 @@ import java.util.ArrayList;
 import java.util.Scanner;
 
 public class Data {
-
+private ArrayList<ArrayList<Double>> totalData = new ArrayList<ArrayList<Double>>();
 private Scanner dataFile;
 //properties
 private String csvFileName;
@@ -18,8 +18,11 @@ private ArrayList<String> attributesList = new ArrayList<String>();
             System.out.println("below here");
             System.out.println(csvFile.getAbsolutePath());
             dataFile = new Scanner(csvFile);
+            //since its a csv we want to sepearte by commas
+            dataFile.useDelimiter(",");
             this.csvFileName = csvFileName;
-            attributesList = getEntireRow(0);
+
+            readAllInitialData(dataFile);
         }
         catch (FileNotFoundException exception){
             System.out.println(String.format("There was no file with the name %s found in this project, did you type the name correctly and put the file in the right folder?", csvFileName));
@@ -61,14 +64,8 @@ private ArrayList<String> attributesList = new ArrayList<String>();
      * @param rowNumber
      * @return
      */
-    public ArrayList<String> getEntireRow(int rowNumber){
-        ArrayList<String> newRow = new ArrayList<String>();
-
-        while (dataFile.hasNext()){
-            newRow.add(dataFile.next());
-        }
-
-        return newRow;
+    public ArrayList<Double> getEntireRow(int rowNumber){        
+        return totalData.get(rowNumber);
     }
 
 
@@ -79,5 +76,48 @@ private ArrayList<String> attributesList = new ArrayList<String>();
      */
     public ArrayList<String> getEntireColumn(int columnNumber){
         return new ArrayList<String>();
+    }
+
+
+    /**
+     * Sets ALL of the data of the CSV this is essential since removing/updating data can be difficult.
+     * And there is no other real way to get data by row or column then rescanning info.
+     * @param fileToBeProcessed
+     * @return
+     */
+    private ArrayList<ArrayList<Double>> readAllInitialData(Scanner fileToBeProcessed){
+        if (fileToBeProcessed.hasNextLine()){
+            String[] firstRow = fileToBeProcessed.nextLine().split(",");
+
+            for (int i = 0; i < firstRow.length; i++){
+                attributesList.add(firstRow[i]);
+            }
+        } else {
+            //TODO: throw an error
+            System.out.println("This file has no lines in it.");
+        }
+
+        //TODO: see about empty spaces as it may "mis-align some columns/data"
+         while (fileToBeProcessed.hasNextLine()){
+            ArrayList<Double> currentRowList = new ArrayList<Double>();
+            String[] processDataRow = fileToBeProcessed.nextLine().split(",");
+            
+            //NOTE first row is expected to be strings so they are done as strings
+
+            //convert this array of string to an ArrayList//NOTE we use "i + 1" to skip the first cell of the row as that will often be a string and cant be a double
+            for (int i = 0; i < processDataRow.length - 1; i++){
+                Double currentDouble = Double.parseDouble(processDataRow[i + 1]);
+
+                currentRowList.add(currentDouble.doubleValue());
+            }
+
+            totalData.add(currentRowList);            
+         }//end while
+
+         //close the file as we should now be done with reading from this file and any other use with this file should be editing it.
+         //totalData should now be effectively our "open" version of the file.
+         fileToBeProcessed.close();
+
+         return totalData;
     }
 }// end Data

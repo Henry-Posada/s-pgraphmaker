@@ -5,8 +5,8 @@
 //This class contains all static calculations methods. This includes calculations like mean, median, mode, and range.
 public class calculations{
     public static void main(String args[]){
-       //Initial load of data
-       Data testData = new Data("MemberAnalysis");
+       //Initial load of data//TODO: make the file name based on input
+       Data testData = new Data("Data");
     }
 
     /** 
