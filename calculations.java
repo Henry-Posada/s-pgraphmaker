@@ -5,11 +5,14 @@ import org.junit.Test;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 //This class contains all static calculations methods. This includes calculations like mean, median, mode, and range.
 public class calculations{
     public static void main(String args[]){
-       
+       //Initial load of data//TODO: make the file name based on input
+       Data testData = new Data("Data");
     }
 
     /** 
@@ -53,22 +56,39 @@ public class calculations{
     }
 
     /**
-     * Returns a double representing the mode of passed ArrayList<Double> object. The method sorts the ArrayList passed to it,
-     *  and calculates the frequency of each element. That frequency is then stored as the index it was found at and only changed 
-     *  once a new element with higher frequency is found.
+     * Returns a ArrayList<Double> representing the mode of passed ArrayList<Double> object. The method creates a frequency map using a Map object 
+     *  and checks each value of the parameter. If the value does not yet exist in the map a new entry is created with that value and its frequency
+     *  is set to 1. If the value already has an entry in the map then the frequency of that entry is increased by 1. Then the number of most frequent
+     *  is found and stored using collections.max. Finally the highest frequnecy number is checked against each entry in the map and if the same the value 
+     *  is added to the ArrayList<Double> mode which is returned. 
      * 
-     * @param findModeOf : An ArrayList<Dobule> of doubles that the user wants to find the mode of.
-     * @return : Returns the calculated mode of the paseed ArrayList<Double> findModeOf.
+     * @param findModeOf : An ArrayList<Double> of doubles that the user wants to find the mode of.
+     * @return : Returns the calculated mode of the passed ArrayList<Double> findModeOf, this ArrayList<Double can have 0 entries or can have as many as n-1 entries
+     *  if the frequency of the values is appropriate.
      * 
      */
-    public static double findMode(ArrayList<Double> findModeOf){
-        Collections.sort(findModeOf);
-        int[] freq = new int[]{};
-        for(Double e: findModeOf){
-            freq[freq.length] = Collections.frequency(findModeOf, e);
+    public static ArrayList<Double> findMode(ArrayList<Double> findModeOf){
+        Map<Double,Integer> freqMap = new HashMap<>(); //Storing the frequency of each element next to the element.
+        ArrayList<Double> mode = new ArrayList<Double>(); // Where mode(s) will be stored
+        for(Double e:findModeOf){
+            if(!freqMap.containsKey(e)){
+                freqMap.put(e, 1);
+            }
+            else if(freqMap.containsKey(e)){
+                freqMap.put(e, freqMap.get(e)+1);
+            }
         }
-
-        return 0.0;
+        //Finding highest frequency 
+        int maxFreq = Collections.max(freqMap.values());
+        //Finding element(s) with highest freq
+        for(Double e: freqMap.keySet())
+        {
+            if(freqMap.get(e) == maxFreq)
+            {
+                mode.add(e);
+            }
+        }
+        return mode;
     }
 
     /**
@@ -83,7 +103,7 @@ public class calculations{
         Collections.sort(findRangeOf);
         ArrayList<Double> range = new ArrayList<Double>();
         range.add(findRangeOf.get(0));
-        range.add(findRangeOf.get(findRangeOf.size()));
+        range.add(findRangeOf.get(findRangeOf.size()-1));
         return range;
     }
     
@@ -116,7 +136,18 @@ public class calculations{
     //This test has not fully been completed and method not fully tested.
     //#####################################//
     @Test
-        public void findModeTest(){}
+        public void findModeTest(){
+            ArrayList<Double> testMode1 = new ArrayList<Double>(Arrays.asList(1.0,1.0,1.0,2.0,2.0));
+            ArrayList<Double> testMode2 = new ArrayList<Double>(Arrays.asList(1.0,2.0,2.0));
+            ArrayList<Double> testMode3 = new ArrayList<Double>(Arrays.asList(1.0,1.0,2.0,2.0));
+            
+            ArrayList<Double> expectedTestMode1 = new ArrayList<Double>(Arrays.asList(1.0));
+            ArrayList<Double> expectedTestMode2 = new ArrayList<Double>(Arrays.asList(2.0));
+            ArrayList<Double> expectedTestMode3 = new ArrayList<Double>(Arrays.asList(1.0,2.0));
+            assertEquals(expectedTestMode1, findMode(testMode1));
+            assertEquals(expectedTestMode2, findMode(testMode2));
+            assertEquals(expectedTestMode3, findMode(testMode3));
+        }
     
 
     //##############NOTE###################//
@@ -125,16 +156,16 @@ public class calculations{
     @Test
         public void findRangeTest(){
             ArrayList<Double> testRange1 = new ArrayList<Double>(Arrays.asList(0.0));
-            ArrayList<Double> testRange2 = new ArrayList<Double>(Arrays.asList());
-            ArrayList<Double> testRange3 = new ArrayList<Double>(Arrays.asList(0.0));
+            ArrayList<Double> testRange2 = new ArrayList<Double>(Arrays.asList(4.0,1.0,2.0,7.0,6.0,8.0,3.0,5.0,10.0,9.0,11.0));
+            ArrayList<Double> testRange3 = new ArrayList<Double>(Arrays.asList(-4.0,1.0,2.0,7.0,6.0,8.0,3.0,5.0,10.0,9.0,11.0));
 
-            ArrayList<Double> expectedRange1 = new ArrayList<Double>(Arrays.asList(0.0));
-            ArrayList<Double> expectedRange2 = new ArrayList<Double>(Arrays.asList());
-            ArrayList<Double> expectedRange3 = new ArrayList<Double>(Arrays.asList(0.0));
+            ArrayList<Double> expectedRange1 = new ArrayList<Double>(Arrays.asList(0.0,0.0));
+            ArrayList<Double> expectedRange2 = new ArrayList<Double>(Arrays.asList(1.0,11.0));
+            ArrayList<Double> expectedRange3 = new ArrayList<Double>(Arrays.asList(-4.0,11.0));
 
-            assertEquals(expectedRange1, testRange1);
-            assertEquals(expectedRange2, testRange2);
-            assertEquals(expectedRange3, testRange3);
+            assertEquals(expectedRange1, findRange(testRange1));
+            assertEquals(expectedRange2, findRange(testRange2));
+            assertEquals(expectedRange3, findRange(testRange3));
         }    
 }
 
