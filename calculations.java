@@ -1,3 +1,5 @@
+import java.util.ArrayList;
+
 //Both imports are needed junit testing.
 //import static org.junit.Assert.*;
 //import org.junit.Test;
@@ -7,6 +9,10 @@ public class calculations{
     public static void main(String args[]){
        //Initial load of data//TODO: make the file name based on input
        Data testData = new Data("Data");
+
+       ArrayList<Double> modelColumn = testData.getEntireColumn(1);
+
+       System.out.println(modelColumn.get(0) == 1997.0);
     }
 
     /** 
