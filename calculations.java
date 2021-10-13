@@ -13,6 +13,13 @@ public class calculations{
        ArrayList<Double> modelColumn = testData.getEntireColumn(1);
 
        System.out.println(modelColumn.get(0) == 1997.0);
+
+       testData.changeCellValue(1, 0, 1555.0);
+
+       System.out.println(modelColumn.get(0) == 1997.0);
+       System.out.println(modelColumn.get(0) == 1555.0);
+
+       testData.updateRecordToDataFile(1);
     }
 
     /** 

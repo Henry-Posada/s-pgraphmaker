@@ -218,14 +218,59 @@ private ArrayList<String> identifiersList = new ArrayList<String>();
     /**BEGIN Editing Data BEGIN **/
 
     /**
+     * Changes the value of a specific cell of a specific record.
+     * @param rowNumber
+     * @param columnNumber
+     * @param newValue
+     * @return
+     */
+    public boolean changeCellValue(int rowNumber, int columnNumber, double newValue){
+        try {
+            //TODO: currently a change here will be saved correctly but if something already has that cell loaded the old value will be there so any UI will have to make a change along side this.
+            ArrayList<Double> currentRecord = getEntireRow(rowNumber);
+
+            currentRecord.set(columnNumber, newValue);
+
+            return true;
+        } catch (Exception e) {
+            //TODO: handle exception
+
+            return false;
+        }
+    }
+
+
+    /**
      * Writes the record of the specified index to the csv file.
      * @param recordNumber
      * @return
      */
-    public boolean writeRecordToDataFile(int recordNumber) {
+    public boolean updateRecordToDataFile(int recordNumber) {
         try{
+            if (recordNumber > tableSize){
+                //TODO: throw an error
+            }
+            //TODO: make it more efficient about opening the file so we dont open and close the file for every update
             File csvFile = new File(String.format("s-pgraphmaker\\%s.csv", csvFileName));
-            FileWriter fileWriter = new FileWriter(csvFile);
+            //set the below to true to append and NOT overwrite
+            FileWriter fileWriter = new FileWriter(csvFile, true);
+
+            String[] recordToBeWritten = convertRecordToStringArray(recordNumber);
+
+            StringBuilder line = new StringBuilder();
+
+            line.append("\n");
+
+            for (int i = 0; i < recordToBeWritten.length; i++) {
+                line.append(recordToBeWritten[i]);
+                if (i != recordToBeWritten.length - 1) {
+                    line.append(',');
+                }
+            }
+
+            fileWriter.write(line.toString());
+            
+            fileWriter.close();
 
             return true;
         } catch (IOException e){
@@ -236,5 +281,19 @@ private ArrayList<String> identifiersList = new ArrayList<String>();
         
     }
 
+
+    public String[] convertRecordToStringArray(int recordIndex){
+        ArrayList<Double> currentRecord = getEntireRow(recordIndex);
+        String[] result = new String[recordSize];
+
+        //NOTE: we start with a newline so we dont append to the end of the last record
+        result[0] = identifiersList.get(recordIndex -ROW_OFFSET);
+
+        for (int i = 1; i < recordSize; i++){
+            result[i] = currentRecord.get(i - 1).toString();
+        }
+
+        return result;
+    }
     /**END Editing Data END**/
 }// end Data
