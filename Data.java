@@ -7,23 +7,26 @@ import java.util.Scanner;
  */
 public class Data {
 private ArrayList<ArrayList<Double>> totalData = new ArrayList<ArrayList<Double>>();
+
+private File currentlyOpenFile;
+private FileWriter currentlyOpenFileWriter;
 private Scanner dataFile;
+
+private ArrayList<String> attributesList = new ArrayList<String>();
+private ArrayList<String> identifiersList = new ArrayList<String>(); 
+
 //properties
 private String csvFileName;
 private int currentRowNumber = 0;
 private int currentColumnNumber = 0;
-
-//Off sets for row and column to cater to if a row or column is not numerical data
-final int ROW_OFFSET = 1;
-final int COLUMN_OFFSET = 1;
-
 //the amount of attributes
 private int recordSize = 0;
 //the amount of records 
 private int tableSize = 0;
-private ArrayList<String> attributesList = new ArrayList<String>();
-private ArrayList<String> identifiersList = new ArrayList<String>(); 
 
+//Off sets for row and column to cater to if a row or column is not numerical data
+final int ROW_OFFSET = 1;
+final int COLUMN_OFFSET = 1;
 
     public Data(String csvFileName) {
         try {
@@ -241,36 +244,57 @@ private ArrayList<String> identifiersList = new ArrayList<String>();
 
 
     /**
+     * Exports a whole CSV file in the form of the records that are currently made up.
+     * @return
+     */
+    public boolean exportCSV(String fileName){
+        try {
+            currentlyOpenFile = new File(String.format("s-pgraphmaker\\%s.csv", fileName));
+            //if its the same name as the current CSV then we are saving (overwriting)
+            boolean overwriteOrAppend = fileName == csvFileName;
+            currentlyOpenFileWriter = new FileWriter(currentlyOpenFile, overwriteOrAppend);
+
+            String[] attributesListAsArray = new String[recordSize];
+
+            for(int i = 0; i < recordSize; i++){
+                attributesListAsArray[i] = attributesList.get(i);
+            }
+
+            //write the attributes first
+            writeRecord(attributesListAsArray);
+
+            for(int i = 1; i < tableSize; i++){
+                String[] recordToBeWritten = convertRecordToStringArray(i);
+
+                writeRecord(recordToBeWritten);
+            }
+
+            currentlyOpenFileWriter.close();
+
+            return true;
+        } catch (Exception e) {
+            //TODO: handle exception
+            return false;
+        }
+    }
+
+
+    /**
      * Writes the record of the specified index to the csv file.
      * @param recordNumber
      * @return
      */
-    public boolean updateRecordToDataFile(int recordNumber) {
+    public boolean appendRecordToDataFile(int recordNumber) {
         try{
-            if (recordNumber > tableSize){
-                //TODO: throw an error
-            }
             //TODO: make it more efficient about opening the file so we dont open and close the file for every update
-            File csvFile = new File(String.format("s-pgraphmaker\\%s.csv", csvFileName));
+            currentlyOpenFile = new File(String.format("s-pgraphmaker\\%s.csv", csvFileName));
             //set the below to true to append and NOT overwrite
-            FileWriter fileWriter = new FileWriter(csvFile, true);
-
+            currentlyOpenFileWriter = new FileWriter(currentlyOpenFile, true);
             String[] recordToBeWritten = convertRecordToStringArray(recordNumber);
 
-            StringBuilder line = new StringBuilder();
-
-            line.append("\n");
-
-            for (int i = 0; i < recordToBeWritten.length; i++) {
-                line.append(recordToBeWritten[i]);
-                if (i != recordToBeWritten.length - 1) {
-                    line.append(',');
-                }
-            }
-
-            fileWriter.write(line.toString());
+            writeRecord(recordToBeWritten);
             
-            fileWriter.close();
+            currentlyOpenFileWriter.close();
 
             return true;
         } catch (IOException e){
@@ -282,6 +306,34 @@ private ArrayList<String> identifiersList = new ArrayList<String>();
     }
 
 
+    public void writeRecord(String[] currentStringArrayRecord){
+        try {
+                StringBuilder line = new StringBuilder();
+
+                line.append("\n");
+
+                for (int i = 0; i < currentStringArrayRecord.length; i++) {
+                    line.append(currentStringArrayRecord[i]);
+                    if (i != currentStringArrayRecord.length - 1) {
+                        line.append(',');
+                    }
+                }
+
+                currentlyOpenFileWriter.write(line.toString());
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            System.out.println("There was an IO exception");
+        }
+    }
+
+
+    /**
+     * Finds the record based on the passed int. With that record we convert it to String array and return that.
+     * Likely used for saving and exporting.
+     * NOTE: Count here starts at 1 because the 0th row is discounted.
+     * @param recordIndex
+     * @return
+     */
     public String[] convertRecordToStringArray(int recordIndex){
         ArrayList<Double> currentRecord = getEntireRow(recordIndex);
         String[] result = new String[recordSize];
