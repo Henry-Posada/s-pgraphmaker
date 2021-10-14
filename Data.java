@@ -2,6 +2,8 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.Scanner;
 
+//TODO: Refactoring notes. Better determine what methods should be private e.g. getIdentifier
+
 /**
  * An object tranlation of a CSV that is tailored for this graphing system that meets the specified formatting.
  */
@@ -141,6 +143,8 @@ final int COLUMN_OFFSET = 1;
         try {
             ArrayList<Double> columnData = new ArrayList<Double>();
             currentColumnNumber = columnNumber;
+            //start at zero since it will be incremented before the first add
+            currentRowNumber = 0;
 
             for (int i = 0; i < tableSize; i++){
                 columnData.add(getNextColumnCell());
@@ -190,19 +194,9 @@ final int COLUMN_OFFSET = 1;
 
         //TODO: see about empty spaces as it may "mis-align some columns/data"
          while (fileToBeProcessed.hasNextLine()){
-            ArrayList<Double> currentRowList = new ArrayList<Double>();
             String[] processDataRow = fileToBeProcessed.nextLine().split(",");
             
-            //get the identifier
-            identifiersList.add(processDataRow[0]);
-
-            //NOTE first row is expected to be strings so they are done as strings
-            //convert this array of string to an ArrayList//NOTE we use "i + 1" to skip the first cell of the row as that will often be a string and cant be a double
-            for (int i = 0; i < processDataRow.length - 1; i++){
-                double currentDouble = Double.parseDouble(processDataRow[i + 1]);
-
-                currentRowList.add(currentDouble);
-            }
+            ArrayList<Double> currentRowList = createRecord(processDataRow);
 
             totalData.add(currentRowList);            
          }//end while
@@ -216,6 +210,30 @@ final int COLUMN_OFFSET = 1;
 
          return totalData;
     }
+
+
+    /**
+     * Creates a record (an arrayList of doubles) and returns it for later use.
+     * @param processDataRow
+     * @return
+     */
+    private ArrayList<Double> createRecord(String[] processDataRow) {
+        ArrayList<Double> currentRowList = new ArrayList<Double>();
+
+        //get the identifier
+        identifiersList.add(processDataRow[0]);
+
+        //NOTE first row is expected to be strings so they are done as strings
+        //convert this array of string to an ArrayList//NOTE we use "i + 1" to skip the first cell of the row as that will often be a string and cant be a double
+        for (int i = 0; i < processDataRow.length - 1; i++){
+            double currentDouble = Double.parseDouble(processDataRow[i + 1]);
+
+            currentRowList.add(currentDouble);
+        }
+
+        return currentRowList;
+    }
+
 
     
     /**BEGIN Editing Data BEGIN **/
@@ -234,6 +252,9 @@ final int COLUMN_OFFSET = 1;
 
             currentRecord.set(columnNumber, newValue);
 
+            //now that the change is made overwrite the csv to preserve the data
+            exportCSV(csvFileName);
+
             return true;
         } catch (Exception e) {
             //TODO: handle exception
@@ -251,7 +272,7 @@ final int COLUMN_OFFSET = 1;
         try {
             currentlyOpenFile = new File(String.format("s-pgraphmaker\\%s.csv", fileName));
             //if its the same name as the current CSV then we are saving (overwriting)
-            boolean overwriteOrAppend = fileName == csvFileName;
+            boolean overwriteOrAppend = !(currentlyOpenFile.exists());
             currentlyOpenFileWriter = new FileWriter(currentlyOpenFile, overwriteOrAppend);
 
             String[] attributesListAsArray = new String[recordSize];
@@ -261,9 +282,19 @@ final int COLUMN_OFFSET = 1;
             }
 
             //write the attributes first
-            writeRecord(attributesListAsArray);
+            StringBuilder line = new StringBuilder();
 
-            for(int i = 1; i < tableSize; i++){
+            for (int i = 0; i < attributesListAsArray.length; i++) {
+                line.append(attributesListAsArray[i]);
+
+                if (i != attributesListAsArray.length - 1) {
+                    line.append(',');
+                }
+            }
+
+            currentlyOpenFileWriter.write(line.toString());
+
+            for(int i = 1; i < tableSize + 1; i++){
                 String[] recordToBeWritten = convertRecordToStringArray(i);
 
                 writeRecord(recordToBeWritten);
@@ -296,16 +327,23 @@ final int COLUMN_OFFSET = 1;
             
             currentlyOpenFileWriter.close();
 
+            insertRecord(recordToBeWritten);
+            //one new record means we need to increment the table size
+            tableSize++;
+
             return true;
         } catch (IOException e){
             System.out.println("There wasnt a file found");
 
             return false;
-        }
-        
+        }        
     }
 
 
+    /**
+     * Writes a record to the currently open file.
+     * @param currentStringArrayRecord
+     */
     public void writeRecord(String[] currentStringArrayRecord){
         try {
                 StringBuilder line = new StringBuilder();
@@ -339,7 +377,7 @@ final int COLUMN_OFFSET = 1;
         String[] result = new String[recordSize];
 
         //NOTE: we start with a newline so we dont append to the end of the last record
-        result[0] = identifiersList.get(recordIndex -ROW_OFFSET);
+        result[0] = identifiersList.get(recordIndex - ROW_OFFSET);
 
         for (int i = 1; i < recordSize; i++){
             result[i] = currentRecord.get(i - 1).toString();
@@ -347,5 +385,56 @@ final int COLUMN_OFFSET = 1;
 
         return result;
     }
+
+
+    /**
+     * Deletes AND removes record from a csv by overwriting the current csv file
+     * @param recordNumber
+     * @return
+     */
+    public boolean deleteRecord(int recordNumber) {
+        try {
+            removeRecord(recordNumber);
+            //Save the file since we want to fully remove the record
+            exportCSV(csvFileName);
+
+            //removed a record reduce the table size
+            tableSize--;
+
+            return true;
+        } catch (Exception e) {
+            //TODO: handle exception
+            return false;
+        }
+    }
+
+
+    /**
+     * Removes the record from totalData but does NOT "save" that change to the file. This should only really be used for complete deletion but we seperate this as a method for clarity.
+     * NOTE This count starts at one.
+     * @param recordNumber
+     */
+    private void removeRecord(int recordNumber) {
+        totalData.remove(recordNumber - ROW_OFFSET);
+        identifiersList.remove(recordNumber - ROW_OFFSET);
+    }
+
+
+    /**
+     * Inserts record at the bottom of totalData
+     * @param recordAsStringArray
+     */
+    private void insertRecord(String[] recordAsStringArray) {
+        ArrayList<Double> result = createRecord(recordAsStringArray);
+
+        totalData.add(result);
+    }
     /**END Editing Data END**/
+
+    /**BEGIN Getter/Setters BEGIN **/
+    public int getRecordSize() {return recordSize;}
+    public int getTableSize() {return tableSize;}
+    public ArrayList<String> getIdentifiersList() {return identifiersList;}
+    public ArrayList<String> getAttributesList() {return attributesList;}
+    /**END Getter/Setters END **/
 }// end Data
