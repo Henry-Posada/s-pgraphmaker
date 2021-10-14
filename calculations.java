@@ -13,19 +13,8 @@ import java.util.Map;
 //This class contains all static calculations methods. This includes calculations like mean, median, mode, and range.
 public class calculations{
     public static void main(String args[]){
-       //Initial load of data//TODO: make the file name based on input
+       //Initial load of data//TODO: make the file name based on input and allow for absolute path with file explorer
        Data testData = new Data("Data");
-
-       ArrayList<Double> modelColumn = testData.getEntireColumn(1);
-
-       System.out.println(modelColumn.get(0) == 1997.0);
-
-       testData.changeCellValue(1, 0, 1555.0);
-
-       System.out.println(modelColumn.get(0) == 1997.0);
-       System.out.println(modelColumn.get(0) == 1555.0);
-
-       testData.updateRecordToDataFile(1);
     }
 
     /** 
