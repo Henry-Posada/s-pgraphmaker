@@ -101,7 +101,11 @@ public class calculations{
                 mode.add(e);
             }
         }
-        return mode;
+        //Checking if mode ArrayList has the same amount of keys as the Freq Map, as there is no mode if this is the case. Return empty array if no mode is found.
+        if(mode.size() != freqMap.size())
+            return mode;
+        else
+            return new ArrayList<Double>();
     }
 
     /**
@@ -152,14 +156,18 @@ public class calculations{
         public void findModeTest(){
             ArrayList<Double> testMode1 = new ArrayList<Double>(Arrays.asList(1.0,1.0,1.0,2.0,2.0));
             ArrayList<Double> testMode2 = new ArrayList<Double>(Arrays.asList(1.0,2.0,2.0));
-            ArrayList<Double> testMode3 = new ArrayList<Double>(Arrays.asList(1.0,1.0,2.0,2.0));
+            ArrayList<Double> testMode3 = new ArrayList<Double>(Arrays.asList(1.0,1.0,2.0,2.0,3.0));
+            ArrayList<Double> testMode4 = new ArrayList<Double>(Arrays.asList(1.0,2.0));
             
             ArrayList<Double> expectedTestMode1 = new ArrayList<Double>(Arrays.asList(1.0));
             ArrayList<Double> expectedTestMode2 = new ArrayList<Double>(Arrays.asList(2.0));
             ArrayList<Double> expectedTestMode3 = new ArrayList<Double>(Arrays.asList(1.0,2.0));
+            ArrayList<Double> expectedTestMode4 = new ArrayList<Double>();
             assertEquals(expectedTestMode1, findMode(testMode1));
             assertEquals(expectedTestMode2, findMode(testMode2));
             assertEquals(expectedTestMode3, findMode(testMode3));
+            assertEquals(expectedTestMode4, findMode(testMode4));
+
         }
     
 
