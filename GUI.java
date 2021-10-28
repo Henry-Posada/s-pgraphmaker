@@ -115,22 +115,19 @@ public class GUI extends Application
 
                         dataSet = new Data(selectedFile.getAbsolutePath());
 
+                        //create our columns dynamically
                         for (int i = 0; i < dataSet.getRecordSize(); i++) {
-                            if (i == 0){
-                                TableColumn<ArrayList<Object>, String> newColumn = new TableColumn(dataSet.getAttributesList().get(i));
-                                
-                                dataTable.getColumns().add(createColumn(i));
-                            } else{
-                                TableColumn<ArrayList<Object>, String> newColumn = new TableColumn(dataSet.getAttributesList().get(i));
-                                
-                                dataTable.getColumns().add(createColumn(i));
-                            }                            
+                            dataTable.getColumns().add(createColumn(i));
                         }
 
+                        //get each record from the data
                         for (int i = 0; i < dataSet.getTableSize(); i++) {
                             List<Object> row = new ArrayList<>();
+                            ArrayList<String> currentRecord = dataSet.getEntireRowAsStringList(i);
+
+                            //create record for each row of the table.
                             for (int columnIndex = 0 ; columnIndex < dataSet.getRecordSize() ; columnIndex++) {
-                                Object cell = columnIndex < row.size() ? row.get(columnIndex) : "";
+                                Object cell = columnIndex < dataSet.getTableSize() ? currentRecord.get(columnIndex).toString() : "";
                                 
                                 row.add(cell);
                             }
@@ -226,10 +223,8 @@ public class GUI extends Application
 
 
     //from stack overflow
-    private TableColumn<List<Object>, ?> createColumn(int index) {
-        String text = "Column "+ (index + 1);
-        
-        TableColumn<List<Object>, String> col = new TableColumn<>(text);
+    private TableColumn<List<Object>, ?> createColumn(int index) {        
+        TableColumn<List<Object>, String> col = new TableColumn<>(dataSet.getAttributesList().get(index));
         col.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().get(index).toString()));
         return col ;        
     }
