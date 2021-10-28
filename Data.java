@@ -32,7 +32,7 @@ final int COLUMN_OFFSET = 1;
 
     public Data(String csvFileName) {
         try {
-            File csvFile = new File(String.format("s-pgraphmaker\\%s.csv", csvFileName));
+            File csvFile = new File(csvFileName);
             dataFile = new Scanner(csvFile);
             this.csvFileName = csvFileName;
 
@@ -127,6 +127,35 @@ final int COLUMN_OFFSET = 1;
             currentRowNumber = rowNumber;
 
             return totalData.get(rowNumber - ROW_OFFSET);   
+        } catch (IndexOutOfBoundsException e) {
+            return null;
+        }
+    }
+
+
+    /**
+     * We use this method as oppsed to its counterpart to help load data into the UI.
+     * @param rowNumber
+     * @return
+     */
+    public ArrayList<String> getEntireRowAsStringList(int rowNumber){        
+        try {
+            currentRowNumber = rowNumber;
+            //TODO: make tests for this
+            if (rowNumber == 0)
+                return this.getAttributesList();
+
+            ArrayList<String> currentRow = new ArrayList<String>();
+
+            currentRow.add(getIdentifier(rowNumber));
+
+            ArrayList<Double> rowData = getEntireRow(rowNumber);
+
+            for (int i = 0; i < rowData.size(); i++) {
+                currentRow.add(rowData.get(i) + "");
+            }
+
+            return currentRow;
         } catch (IndexOutOfBoundsException e) {
             return null;
         }
@@ -268,9 +297,12 @@ final int COLUMN_OFFSET = 1;
      * Exports a whole CSV file in the form of the records that are currently made up.
      * @return
      */
-    public boolean exportCSV(String fileName){
+    public boolean exportCSV(String filePath){
         try {
-            currentlyOpenFile = new File(String.format("s-pgraphmaker\\%s.csv", fileName));
+            if (filePath.endsWith(".csv") == false)
+                filePath += ".csv";
+
+            currentlyOpenFile = new File(String.format(filePath));
             //if its the same name as the current CSV then we are saving (overwriting)
             boolean overwriteOrAppend = !(currentlyOpenFile.exists());
             currentlyOpenFileWriter = new FileWriter(currentlyOpenFile, overwriteOrAppend);
@@ -318,7 +350,7 @@ final int COLUMN_OFFSET = 1;
     public boolean appendRecordToDataFile(int recordNumber) {
         try{
             //TODO: make it more efficient about opening the file so we dont open and close the file for every update
-            currentlyOpenFile = new File(String.format("s-pgraphmaker\\%s.csv", csvFileName));
+            currentlyOpenFile = new File(csvFileName);
             //set the below to true to append and NOT overwrite
             currentlyOpenFileWriter = new FileWriter(currentlyOpenFile, true);
             String[] recordToBeWritten = convertRecordToStringArray(recordNumber);

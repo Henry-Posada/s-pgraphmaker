@@ -23,9 +23,11 @@ import org.junit.Test;
  */
 public class Test_Data {
 
+    final String TEST_FILE_PATH = "s-pgraphmaker\\Data.csv";
+
     @Test
     public void importDataTest() {        
-        Data testData = new Data("Data");
+        Data testData = new Data(TEST_FILE_PATH);
 
         assertNotNull("There are no attributes", testData.getAttributesList());
         assertNotNull("There are no identifiers in the file.", testData.getIdentifiersList());
@@ -35,7 +37,7 @@ public class Test_Data {
 
     @Test
     public void getCellTest() {
-         Data testData = new Data("Data");
+         Data testData = new Data(TEST_FILE_PATH);
 
          assertEquals(5345.0, testData.getCell(2,3), 0.0001);
     }
@@ -43,7 +45,7 @@ public class Test_Data {
 
     @Test
     public void changeCellValueTest() {
-         Data testData = new Data("Data");
+         Data testData = new Data(TEST_FILE_PATH);
 
          testData.changeCellValue(1, 0, 1555.0);
 
@@ -56,7 +58,7 @@ public class Test_Data {
 
     @Test 
     public void getEntireColumnTest(){
-         Data testData = new Data("Data");
+         Data testData = new Data(TEST_FILE_PATH);
 
          testData.changeCellValue(1, 0, 1555.0);
 
@@ -78,7 +80,7 @@ public class Test_Data {
 
     @Test
     public void exportCSVTest() {
-        Data testData = new Data("Data");
+        Data testData = new Data(TEST_FILE_PATH);
         String fileName = "fileToCreate";
         File csvFile = new File(String.format("s-pgraphmaker\\%s.csv", fileName));
 
@@ -97,7 +99,8 @@ public class Test_Data {
 
     @Test
     public void appendRecordToDataFileTest(){
-         Data testData = new Data("Data");
+        //TODO: fix this test when the new file export works (paths are different/not pre set since we use UI now)
+         Data testData = new Data(TEST_FILE_PATH);
 
          testData.exportCSV("firstSet");
 
