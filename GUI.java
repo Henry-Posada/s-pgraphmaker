@@ -29,6 +29,9 @@ import java.util.*;
 
 import javax.sound.sampled.Line;
 
+//C:\Users\Henry\Desktop\School\Grad\CSC 678\S&PGraphMakerFiles\s-pgraphmaker\ 
+
+
 /**
  * Homework8 make a picture that involves at least one rectangle, polygon, oval, text, color, gradient and effect
  * 

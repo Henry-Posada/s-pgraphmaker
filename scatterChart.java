@@ -12,7 +12,7 @@ public class scatterChart extends Application{
     private NumberAxis xAxis = new NumberAxis();
     private NumberAxis yAxis = new NumberAxis();
     private ScatterChart<Number,Number> sChart = new ScatterChart<Number,Number>(xAxis,yAxis);
-    Data testData = new Data("Data");
+    Data testData = new Data("C:\\Users\\Henry\\Desktop\\School\\Grad\\CSC 678\\S&PGraphMakerFiles\\s-pgraphmaker\\Data.csv");
 
 
     public void start(Stage stage){
@@ -94,6 +94,23 @@ public class scatterChart extends Application{
         }
         series.setName(label);
         sChart.getData().addAll(series);
+    }
+
+    /**
+     * Add a series of data to the scatter chart. This method is only for plotting a y axis of data so that data can be compared to one another for that specific
+     * category.
+     * 
+     * @param y : An Array of doubles to be added to the chart, should be the Y-Axis of the data.
+     * @param label2 : A Array of Strings to be set alongside each Y value as its label.
+     */
+    public void addSeries(ArrayList<Double> y, ArrayList<String> labels){
+        XYChart.Series series = new XYChart.Series();
+        for(int i = 0; i<y.size(); i++){
+            series = new XYChart.Series();
+            series.getData().add(new XYChart.Data(i,y.get(i)));
+            sChart.getData().addAll(series);
+        }
+        
     }
 
     //Create the plot

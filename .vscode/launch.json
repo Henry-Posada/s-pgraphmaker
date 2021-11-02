@@ -6,6 +6,14 @@
     "configurations": [
         {
             "type": "java",
+            "name": "Launch barChart",
+            "request": "launch",
+            "mainClass": "barChart",
+            "vmArgs": "--module-path javafx-sdk-17.0.1\\lib --add-modules=javafx.controls,javafx.fxml,javafx.graphics",
+            "projectName": "s-pgraphmaker_ef33a655"
+        },
+        {
+            "type": "java",
             "name": "Launch scatterChart",
             "request": "launch",
             "mainClass": "scatterChart",
@@ -24,6 +32,7 @@
             "name": "Launch calculations",
             "request": "launch",
             "mainClass": "calculations",
+            "vmArgs": "--module-path javafx-sdk-17.0.1\\lib --add-modules=javafx.controls,javafx.fxml,javafx.graphics",
             "projectName": "s-pgraphmaker_ef33a655"
         },
         {
@@ -38,6 +47,7 @@
             "type": "java",
             "name": "Launch GUI",
             "request": "launch",
+            "vmArgs": "--module-path javafx-sdk-17.0.1\\lib --add-modules=javafx.controls,javafx.fxml,javafx.graphics",
             "mainClass": "GUI"
         }
     ]
