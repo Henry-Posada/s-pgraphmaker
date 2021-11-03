@@ -21,7 +21,18 @@ public class barChart extends Application{
     ArrayList<String> x2 = new ArrayList<String>(Arrays.asList("Henry","Scott"));
     ArrayList<Double> y2 = new ArrayList<Double>(Arrays.asList(15.0,26.0));
 
-    
+    public barChart(){
+
+    }
+
+    public barChart(ArrayList<String> x, ArrayList<Double> y, String label){
+        this.addSeries(x, y, label);
+    }
+ 
+    public barChart(ArrayList<Double> y, ArrayList<String> labels){
+        //TODO: If only a Y series is given, X axis will be 1, 2, 3, etc.
+        this.addSeries(y, labels);
+    }
  
 
     public void start(Stage stage){
@@ -106,7 +117,7 @@ public class barChart extends Application{
         XYChart.Series series = new XYChart.Series();
         for(int i = 0; i<y.size(); i++){
             series = new XYChart.Series();
-            series.getData().add(new XYChart.Data(i,y.get(i)));
+            series.getData().add(new XYChart.Data(i+1,y.get(i)));
             bChart.getData().addAll(series);
         }
         
