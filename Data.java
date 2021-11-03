@@ -188,6 +188,28 @@ final int COLUMN_OFFSET = 1;
 
 
     /**
+     * Gets the entire column of data based on the attribute name.
+     * If there is no match it will return the first column.
+     * @param attributeName
+     * @return
+     */
+    public ArrayList<Double> getEntireColumn(String attributeName){
+        try {
+            for (int i = 0; i < recordSize; i++){
+                if (attributesList.get(i).equals(attributeName))
+                    return getEntireColumn(i);
+            }
+
+            //get 1st result
+            return getEntireColumn(0);
+        } catch (Exception e) {
+            //TODO: handle exception     
+            return getEntireColumn(0);    
+        }
+    }
+
+
+    /**
      * Gets the identifier for the specified record.
      * @param recordIndex
      * @return

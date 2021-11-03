@@ -68,14 +68,23 @@ public class GUI extends Application
 
         menuList.add(new Menu("File"));
         menuList.add(new Menu("Information"));
+        menuList.add(new Menu("Graphs"));
+        menuList.add(new Menu("Calculations"));
 
         //because the add method doesnt return the item we assign after adding the items
         Menu fileMenu = menuList.get(0);
         Menu informationMenu = menuList.get(1);
+        Menu graphsMenu = menuList.get(2);
+        Menu calcuationsMenu = menuList.get(3);
 
         fileMenu.getItems().add(new MenuItem("Open"));
         fileMenu.getItems().add(new MenuItem("Export"));
         fileMenu.getItems().add(new MenuItem("Close"));
+
+        graphsMenu.getItems().add(new MenuItem("Scatter Plot"));
+        graphsMenu.getItems().add(new MenuItem("Line Graph"));
+
+        calcuationsMenu.getItems().add(new MenuItem("Mean"));
 
         informationMenu.getItems().add(new MenuItem("About the Program"));
         //TODO: add graphics to menu items? menuItemList.get(i).setGraphic( new ImageView( new Image(iconArray[i]) ) );
@@ -173,13 +182,70 @@ public class GUI extends Application
 
             //"Close"
             fileMenu.getItems().get(2).setOnAction(
-            new EventHandler<ActionEvent>()
-            {
-                    public void handle(ActionEvent event)
-                    {
-                        System.exit(0);
+                new EventHandler<ActionEvent>()
+                {
+                        public void handle(ActionEvent event)
+                        {
+                            System.exit(0);
+                        }
+                });//end click evennt for "Close"
+
+
+
+            //*********BEGIN: Events-Graphs******************/
+            //Scatter plot
+            graphsMenu.getItems().get(0).setOnAction(
+                new EventHandler<ActionEvent>() 
+                {
+                    public void handle(ActionEvent event) {
+                        Stage popupwindow=new Stage();
+      
+                        popupwindow.initModality(Modality.APPLICATION_MODAL);
+                        popupwindow.setTitle("Making a scatterplot.");
+
+                        Label explainer= new Label("Pick a series X and series Y for the X axis. If you do not choose an X series the X series will be based off the index of the records. (TO BE IMPLEMENTED)");
+                                                       
+                        ChoiceBox<String> seriesXBox = new ChoiceBox<>();
+                        ChoiceBox<String> seriesYBox = new ChoiceBox<>();
+     
+                        Label xLabel = new Label("Series X:");
+                        Label yLabel = new Label("Series Y:");
+
+                        Button createGraphButton = new Button("Create a ScatterPlot");
+
+                        ArrayList<String> attributesList = dataSet.getAttributesList();
+
+                        for (int i = 0; i < attributesList.size(); i++){
+                            seriesXBox.getItems().add(attributesList.get(i));
+                            seriesYBox.getItems().add(attributesList.get(i));
+                        }
+                        
+                        //select initial values
+                        seriesXBox.getSelectionModel().select(0);
+                        seriesYBox.getSelectionModel().select(1);
+
+                        HBox firstLine = new HBox();
+
+                        firstLine.getChildren().addAll(xLabel, seriesXBox, yLabel, seriesYBox);
+
+                        VBox layout= new VBox(10);
+                                                       
+                        layout.getChildren().addAll(explainer, createGraphButton, firstLine);
+                            
+                        layout.setAlignment(Pos.CENTER);
+                            
+                        Scene scene1= new Scene(layout, 300, 250);
+                            
+                        popupwindow.setScene(scene1);
+                            
+                        popupwindow.showAndWait();
                     }
-            });//end click evennt for "Close"
+                });
+            //*********END: Events-Graphs******************/
+            
+
+            //*********BEGIN: Events-Calculations******************/
+            //*********END: Events-Calculations******************/
             //*********Events******************/
         //*************Menu**************/
 
@@ -226,6 +292,7 @@ public class GUI extends Application
     private TableColumn<List<Object>, ?> createColumn(int index) {        
         TableColumn<List<Object>, String> col = new TableColumn<>(dataSet.getAttributesList().get(index));
         col.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().get(index).toString()));
+        
         return col ;        
     }
 }
