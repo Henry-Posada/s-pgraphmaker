@@ -201,10 +201,10 @@ final int COLUMN_OFFSET = 1;
             }
 
             //get 1st result
-            return getEntireColumn(0);
+            return getEntireColumn(1);
         } catch (Exception e) {
             //TODO: handle exception     
-            return getEntireColumn(0);    
+            return getEntireColumn(1);    
         }
     }
 

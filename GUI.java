@@ -215,7 +215,8 @@ public class GUI extends Application
 
                         ArrayList<String> attributesList = dataSet.getAttributesList();
 
-                        for (int i = 0; i < attributesList.size(); i++){
+                        //NOTE: we start at 1 to not add the record Type
+                        for (int i = 1; i < attributesList.size(); i++){
                             seriesXBox.getItems().add(attributesList.get(i));
                             seriesYBox.getItems().add(attributesList.get(i));
                         }
@@ -229,7 +230,19 @@ public class GUI extends Application
                         firstLine.getChildren().addAll(xLabel, seriesXBox, yLabel, seriesYBox);
 
                         VBox layout= new VBox(10);
-                                                       
+                                       
+                        createGraphButton.setOnAction(
+                            new EventHandler<ActionEvent>() {
+                                public void handle(ActionEvent event) {
+                                    String DELETEME1 = seriesXBox.getValue();
+                                    String DELETEME2 = seriesYBox.getValue();
+                                    ArrayList<Double> seriesX = dataSet.getEntireColumn(seriesXBox.getValue());
+                                    ArrayList<Double> seriesY = dataSet.getEntireColumn(seriesYBox.getValue());
+
+
+                                }                            
+                        });
+
                         layout.getChildren().addAll(explainer, createGraphButton, firstLine);
                             
                         layout.setAlignment(Pos.CENTER);
