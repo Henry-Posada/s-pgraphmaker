@@ -316,7 +316,7 @@ public class GUI extends Application
         Button createGraphButton = new Button(String.format("Create a %s", graphName));
 
         ArrayList<String> attributesList = dataSet.getAttributesList();
-        ArrayList<String> identifiersList = dataSet.getIdentifiersList();
+        ArrayList<String> identitfierList = dataSet.getIdentifiersList();
 
         //NOTE: we start at 1 to not add the record Type
         for (int i = 1; i < attributesList.size(); i++){
@@ -343,8 +343,6 @@ public class GUI extends Application
         } else {
             firstLine.getChildren().addAll(xLabel, seriesXBox, yLabel, seriesYBox);
         }
-
-
                       
 
         createGraphButton.setOnAction(
@@ -354,54 +352,56 @@ public class GUI extends Application
                     ArrayList<Double> seriesY = dataSet.getEntireColumn(seriesYBox.getValue());
 
                     boolean hasSeriesY = !seriesYBox.getValue().equals(EMPTY_SERIES_OPTION);
-
                     String chartLabel = hasSeriesY ? seriesXBox.getValue() + " by " + seriesYBox.getValue() : seriesXBox.getValue();
-                    ArrayList<String> identifiersList = dataSet.getIdentifiersList();
 
-                    //set up to be assigned later
-                    XYChart contentChart;
+                    ISPGraph chosenGraph;
 
                     if (hasSeriesY){
                         switch (chartType) {
                             case "Scatter Chart":
-                                contentChart = new scatterChart(seriesX, seriesY, chartLabel).getChartObj();
+                                chosenGraph = new scatterChart(seriesX, seriesY, chartLabel);
 
                                 break;
                             case "Line Chart":
-                                contentChart = new lineChart(seriesX, seriesY, chartLabel).getChartObj();
+                                chosenGraph = new lineChart(seriesX, seriesY, chartLabel);
 
                                 break;
                             case "Bar Chart":
-                                contentChart = new barChart(identifiersList, seriesX, chartLabel).getChartObj();
+                                chosenGraph = new barChart(identitfierList, seriesX, chartLabel);
 
                                 break;
                             //need a default for compiler
                             default:
-                                contentChart = new scatterChart(seriesX, seriesY, chartLabel).getChartObj();
+                                chosenGraph = new scatterChart(seriesX, seriesY, chartLabel);
 
                                 break;
                         }
                     } else{
                         switch (chartType) {
                             case "Scatter Chart":
-                                contentChart = new scatterChart(seriesX, identifiersList).getChartObj();
+                                chosenGraph = new scatterChart(seriesX, identitfierList);
 
                                 break;
                             case "Line Graph":
-                                contentChart = new lineChart(seriesX, identifiersList).getChartObj();
+                                chosenGraph = new lineChart(seriesX, identitfierList);
 
                                 break;
                             case "Bar Chart":
-                                contentChart = new barChart(seriesX, identifiersList).getChartObj();
+                                chosenGraph = new barChart(seriesX, identitfierList);
 
                                 break;
                             //need a default for compiler
                             default:
-                                contentChart = new scatterChart(seriesX, identifiersList).getChartObj();
+                                chosenGraph = new scatterChart(seriesX, identitfierList);
 
                                 break;
                         }
                     }
+
+                    chosenGraph.setChartTitle("test1");
+                    chosenGraph.setXLabel("test2");
+
+                    XYChart contentChart = chosenGraph.getChartObj();
 
                     //clear in case of already containing a chart
                     contentLine.getChildren().clear();

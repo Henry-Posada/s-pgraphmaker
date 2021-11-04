@@ -7,7 +7,7 @@ import javafx.scene.chart.XYChart;
 import javafx.scene.chart.ScatterChart;
 
 
-public class scatterChart extends Application{
+public class scatterChart extends Application implements ISPGraph{
     
     private NumberAxis xAxis = new NumberAxis();
     private NumberAxis yAxis = new NumberAxis();

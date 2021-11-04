@@ -10,7 +10,7 @@ import javafx.scene.chart.XYChart;
 import javafx.scene.chart.LineChart;
 
 
-public class barChart extends Application{
+public class barChart extends Application implements ISPGraph{ 
     
     private CategoryAxis xAxis = new CategoryAxis();
     private NumberAxis yAxis = new NumberAxis();
