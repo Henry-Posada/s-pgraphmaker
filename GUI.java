@@ -316,6 +316,7 @@ public class GUI extends Application
         Button createGraphButton = new Button(String.format("Create a %s", graphName));
 
         ArrayList<String> attributesList = dataSet.getAttributesList();
+        ArrayList<String> identifiersList = dataSet.getIdentifiersList();
 
         //NOTE: we start at 1 to not add the record Type
         for (int i = 1; i < attributesList.size(); i++){
@@ -342,6 +343,8 @@ public class GUI extends Application
         } else {
             firstLine.getChildren().addAll(xLabel, seriesXBox, yLabel, seriesYBox);
         }
+
+
                       
 
         createGraphButton.setOnAction(
@@ -380,20 +383,20 @@ public class GUI extends Application
                     } else{
                         switch (chartType) {
                             case "Scatter Chart":
-                                contentChart = new scatterChart(seriesX, attributesList).getChartObj();
+                                contentChart = new scatterChart(seriesX, identifiersList).getChartObj();
 
                                 break;
                             case "Line Graph":
-                                contentChart = new lineChart(seriesX, attributesList).getChartObj();
+                                contentChart = new lineChart(seriesX, identifiersList).getChartObj();
 
                                 break;
                             case "Bar Chart":
-                                contentChart = new barChart(seriesX, attributesList).getChartObj();
+                                contentChart = new barChart(seriesX, identifiersList).getChartObj();
 
                                 break;
                             //need a default for compiler
                             default:
-                                contentChart = new scatterChart(seriesX, attributesList).getChartObj();
+                                contentChart = new scatterChart(seriesX, identifiersList).getChartObj();
 
                                 break;
                         }
