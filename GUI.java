@@ -353,6 +353,7 @@ public class GUI extends Application
                     boolean hasSeriesY = !seriesYBox.getValue().equals(EMPTY_SERIES_OPTION);
 
                     String chartLabel = hasSeriesY ? seriesXBox.getValue() + " by " + seriesYBox.getValue() : seriesXBox.getValue();
+                    ArrayList<String> identifiersList = dataSet.getIdentifiersList();
 
                     //set up to be assigned later
                     XYChart contentChart;
@@ -368,7 +369,7 @@ public class GUI extends Application
 
                                 break;
                             case "Bar Chart":
-                                contentChart = new barChart(attributesList, seriesY, chartLabel).getChartObj();
+                                contentChart = new barChart(identifiersList, seriesX, chartLabel).getChartObj();
 
                                 break;
                             //need a default for compiler
@@ -380,15 +381,15 @@ public class GUI extends Application
                     } else{
                         switch (chartType) {
                             case "Scatter Chart":
-                                contentChart = new scatterChart(seriesX, attributesList).getChartObj();
+                                contentChart = new scatterChart(seriesX, identifiersList).getChartObj();
 
                                 break;
                             case "Line Graph":
-                                contentChart = new lineChart(seriesX, attributesList).getChartObj();
+                                contentChart = new lineChart(seriesX, identifiersList).getChartObj();
 
                                 break;
                             case "Bar Chart":
-                                contentChart = new barChart(seriesX, attributesList).getChartObj();
+                                contentChart = new barChart(seriesX, identifiersList).getChartObj();
 
                                 break;
                             //need a default for compiler
