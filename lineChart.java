@@ -19,8 +19,18 @@ public class lineChart extends Application{
     ArrayList<Double> x2 = new ArrayList<Double>(Arrays.asList(10.0,20.0,30.0,40.0,50.0));
     ArrayList<Double> y2 = new ArrayList<Double>(Arrays.asList(10.0,20.0,30.0,40.0,50.0));
 
-    
+    public lineChart(){
+
+    }
+
+    public lineChart(ArrayList<Double> x, ArrayList<Double> y, String label){
+        this.addSeries(x, y, label);
+    }
  
+    public lineChart(ArrayList<Double> y, ArrayList<String> labels){
+        //TODO: If only a Y series is given, X axis will be 1, 2, 3, etc.
+        this.addSeries(y, labels);
+    }
 
     public void start(Stage stage){
 
@@ -117,7 +127,7 @@ public class lineChart extends Application{
         XYChart.Series series = new XYChart.Series();
         for(int i = 0; i<y.size(); i++){
             series = new XYChart.Series();
-            series.getData().add(new XYChart.Data(i,y.get(i)));
+            series.getData().add(new XYChart.Data(i+1,y.get(i)));
             lChart.getData().addAll(series);
         }
         

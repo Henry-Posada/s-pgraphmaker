@@ -14,6 +14,18 @@ public class scatterChart extends Application{
     private ScatterChart<Number,Number> sChart = new ScatterChart<Number,Number>(xAxis,yAxis);
     Data testData = new Data("C:\\Users\\Henry\\Desktop\\School\\Grad\\CSC 678\\S&PGraphMakerFiles\\s-pgraphmaker\\Data.csv");
 
+    public scatterChart(){
+
+    }
+
+    public scatterChart(ArrayList<Double> x, ArrayList<Double> y, String label){
+        this.addSeries(x, y, label);
+    }
+ 
+    public scatterChart(ArrayList<Double> y, ArrayList<String> labels){
+        //TODO: If only a Y series is given, X axis will be 1, 2, 3, etc.
+        this.addSeries(y, labels);
+    }
 
     public void start(Stage stage){
         this.addSeries(testData.getEntireColumn(1), testData.getEntireColumn(3), "Test");
@@ -107,7 +119,7 @@ public class scatterChart extends Application{
         XYChart.Series series = new XYChart.Series();
         for(int i = 0; i<y.size(); i++){
             series = new XYChart.Series();
-            series.getData().add(new XYChart.Data(i,y.get(i)));
+            series.getData().add(new XYChart.Data(i+1,y.get(i)));
             sChart.getData().addAll(series);
         }
         
