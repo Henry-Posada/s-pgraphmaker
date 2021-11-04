@@ -4,6 +4,7 @@ import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.scene.*;
 import javafx.scene.canvas.*;
 import javafx.scene.chart.LineChart;
+import javafx.scene.chart.XYChart;
 import javafx.scene.control.*;
 import javafx.scene.control.Alert.*;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -50,6 +51,13 @@ public class GUI extends Application
     ArrayList<Menu> menuList = new ArrayList<Menu>();
     ArrayList<MenuItem> menuItemList = new ArrayList<MenuItem>();
 
+    final String[] CHART_TYPES = new String[] {"Scatter Chart", "Line Chart", "Bar Chart"};
+    final String[] CHART_EXPLAINER_TEXT = new String[] {
+        "Scatter Plot: Pick a series X and series Y for the X axis. If you do not choose an X series the X series will be based off the index of the records.", 
+        "LineGraph: Pick a series X and series Y for the X axis. If you do not choose an X series the X series will be based off the index of the records.", 
+        "Bar Chart: Pick a series X and series Y for the X axis. If you do not choose an X series the X series will be based off the index of the records."
+    };
+
     private static TableView<List<Object>> dataTable;
 
     public void start(Stage mainStage) 
@@ -86,6 +94,7 @@ public class GUI extends Application
 
         graphsMenu.getItems().add(new MenuItem("Scatter Plot"));
         graphsMenu.getItems().add(new MenuItem("Line Graph"));
+        graphsMenu.getItems().add(new MenuItem("Bar Graph"));
 
         calcuationsMenu.getItems().add(new MenuItem("Mean"));
 
@@ -120,6 +129,7 @@ public class GUI extends Application
             {
                     public void handle(ActionEvent event)
                     {
+                        //TODO: find a way to clear the table properly
                         FileChooser fileChooser = new FileChooser();
                         File selectedFile = fileChooser.showOpenDialog(mainStage);
 
@@ -196,65 +206,32 @@ public class GUI extends Application
 
 
             //*********BEGIN: Events-Graphs******************/
-            //Scatter plot
+            //Scatter Chart
             graphsMenu.getItems().get(0).setOnAction(
                 new EventHandler<ActionEvent>() 
                 {
                     public void handle(ActionEvent event) {
-                        Stage popupwindow=new Stage();
-      
-                        popupwindow.initModality(Modality.APPLICATION_MODAL);
-                        popupwindow.setTitle("Making a scatterplot.");
-
-                        Label explainer= new Label("Pick a series X and series Y for the X axis. If you do not choose an X series the X series will be based off the index of the records. (TO BE IMPLEMENTED)");
-                                                       
-                        ChoiceBox<String> seriesXBox = new ChoiceBox<>();
-                        ChoiceBox<String> seriesYBox = new ChoiceBox<>();
-     
-                        Label xLabel = new Label("Series X:");
-                        Label yLabel = new Label("Series Y:");
-
-                        Button createGraphButton = new Button("Create a ScatterPlot");
-
-                        ArrayList<String> attributesList = dataSet.getAttributesList();
-
-                        //NOTE: we start at 1 to not add the record Type
-                        for (int i = 1; i < attributesList.size(); i++){
-                            seriesXBox.getItems().add(attributesList.get(i));
-                            seriesYBox.getItems().add(attributesList.get(i));
-                        }
-                        
-                        //select initial values
-                        seriesXBox.getSelectionModel().select(0);
-                        seriesYBox.getSelectionModel().select(1);
-
-                        HBox firstLine = new HBox();
-
-                        firstLine.getChildren().addAll(xLabel, seriesXBox, yLabel, seriesYBox);
-
-                        VBox layout= new VBox(10);
-                                       
-                        createGraphButton.setOnAction(
-                            new EventHandler<ActionEvent>() {
-                                public void handle(ActionEvent event) {
-                                    String DELETEME1 = seriesXBox.getValue();
-                                    String DELETEME2 = seriesYBox.getValue();
-                                    ArrayList<Double> seriesX = dataSet.getEntireColumn(seriesXBox.getValue());
-                                    ArrayList<Double> seriesY = dataSet.getEntireColumn(seriesYBox.getValue());
+                        createGraphPopup(CHART_TYPES[0], "My Scatter Plot", 0);
+                    }
+                });
 
 
-                                }                            
-                        });
+            //Line Chart
+            graphsMenu.getItems().get(1).setOnAction(
+                new EventHandler<ActionEvent>() 
+                {
+                    public void handle(ActionEvent event) {
+                        createGraphPopup(CHART_TYPES[1], "My Line Plot", 0);
+                    }
+                });
 
-                        layout.getChildren().addAll(explainer, createGraphButton, firstLine);
-                            
-                        layout.setAlignment(Pos.CENTER);
-                            
-                        Scene scene1= new Scene(layout, 300, 250);
-                            
-                        popupwindow.setScene(scene1);
-                            
-                        popupwindow.showAndWait();
+
+            //Bar Chart
+            graphsMenu.getItems().get(2).setOnAction(
+                new EventHandler<ActionEvent>() 
+                {
+                    public void handle(ActionEvent event) {
+                        createGraphPopup(CHART_TYPES[2], "My Bar Chart", 0);
                     }
                 });
             //*********END: Events-Graphs******************/
@@ -281,7 +258,6 @@ public class GUI extends Application
 
 
     //helper functions
-
     /**
      * 
      * @param newProperty
@@ -311,4 +287,130 @@ public class GUI extends Application
         
         return col ;        
     }
+
+
+    /**
+     * Creates a popup window to create a chart.
+     * @param chartType the type of chart to determine what XY chart will be made.
+     * @param graphName tbe name to give.
+     * @param graphIndex Index relative to CHART_TYPES
+     */
+    private void createGraphPopup(String chartType, String graphName, int graphIndex) {
+        Stage popupwindow = new Stage();
+
+        boolean removeYSeries =  chartType.equals(CHART_TYPES[2]);
+
+        final String EMPTY_SERIES_OPTION = "None";
+
+        popupwindow.initModality(Modality.APPLICATION_MODAL);
+        popupwindow.setTitle(String.format("Making a %s.", graphName));
+
+        Label explainer = new Label(CHART_EXPLAINER_TEXT[graphIndex]);
+                                       
+        ChoiceBox<String> seriesXBox = new ChoiceBox<>();
+        ChoiceBox<String> seriesYBox = new ChoiceBox<>();
+
+        Label xLabel = new Label("Series X:");
+        Label yLabel = new Label("Series Y:");
+
+        Button createGraphButton = new Button(String.format("Create a %s", graphName));
+
+        ArrayList<String> attributesList = dataSet.getAttributesList();
+
+        //NOTE: we start at 1 to not add the record Type
+        for (int i = 1; i < attributesList.size(); i++){
+            seriesXBox.getItems().add(attributesList.get(i));
+            seriesYBox.getItems().add(attributesList.get(i));
+        }
+        
+        seriesXBox.getItems().add(EMPTY_SERIES_OPTION);
+        seriesYBox.getItems().add(EMPTY_SERIES_OPTION);
+
+        //select initial values
+        seriesXBox.getSelectionModel().select(0);
+        //TODO: if there are less than 2 columns this will be a problem
+        seriesYBox.getSelectionModel().select(1);
+
+        HBox firstLine = new HBox();
+        //holds the content (graphs)
+        HBox contentLine = new HBox();
+        VBox layout= new VBox(10);
+
+        //only add Y series if relevant
+        if (removeYSeries){
+            firstLine.getChildren().addAll(xLabel, seriesXBox);
+        } else {
+            firstLine.getChildren().addAll(xLabel, seriesXBox, yLabel, seriesYBox);
+        }
+                      
+
+        createGraphButton.setOnAction(
+            new EventHandler<ActionEvent>() {
+                public void handle(ActionEvent event) {
+                    ArrayList<Double> seriesX = dataSet.getEntireColumn(seriesXBox.getValue());
+                    ArrayList<Double> seriesY = dataSet.getEntireColumn(seriesYBox.getValue());
+
+                    boolean hasSeriesY = !seriesYBox.getValue().equals(EMPTY_SERIES_OPTION);
+
+                    String chartLabel = hasSeriesY ? seriesXBox.getValue() + " by " + seriesYBox.getValue() : seriesXBox.getValue();
+
+                    //set up to be assigned later
+                    XYChart contentChart;
+
+                    if (hasSeriesY){
+                        switch (chartType) {
+                            case "Scatter Chart":
+                                contentChart = new scatterChart(seriesX, seriesY, chartLabel).getChartObj();
+
+                                break;
+                            case "Line Chart":
+                                contentChart = new lineChart(seriesX, seriesY, chartLabel).getChartObj();
+
+                                break;
+                            case "Bar Chart":
+                                contentChart = new barChart(attributesList, seriesY, chartLabel).getChartObj();
+
+                                break;
+                            //need a default for compiler
+                            default:
+                                contentChart = new scatterChart(seriesX, seriesY, chartLabel).getChartObj();
+
+                                break;
+                        }
+                    } else{
+                        switch (chartType) {
+                            case "Scatter Chart":
+                                contentChart = new scatterChart(seriesX, attributesList).getChartObj();
+
+                                break;
+                            case "Line Graph":
+                                contentChart = new lineChart(seriesX, attributesList).getChartObj();
+
+                                break;
+                            case "Bar Chart":
+                                contentChart = new barChart(seriesX, attributesList).getChartObj();
+
+                                break;
+                            //need a default for compiler
+                            default:
+                                contentChart = new scatterChart(seriesX, attributesList).getChartObj();
+
+                                break;
+                        }
+                    }
+
+                    //clear in case of already containing a chart
+                    contentLine.getChildren().clear();
+                    contentLine.getChildren().add(contentChart);
+                }                            
+        });
+
+        layout.getChildren().addAll(explainer, createGraphButton, firstLine, contentLine);            
+        layout.setAlignment(Pos.CENTER);
+            
+        Scene scene1= new Scene(layout, 600, 500);
+            
+        popupwindow.setScene(scene1);            
+        popupwindow.showAndWait();
+    }//end createGraphPopup
 }

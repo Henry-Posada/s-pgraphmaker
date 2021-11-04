@@ -123,6 +123,11 @@ public class barChart extends Application{
         
     }
 
+
+    //gets the Bar Chart
+    public BarChart getChartObj(){return bChart;}
+
+
     //Create the plot
     public static void main(String args[]){
         launch(args);

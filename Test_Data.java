@@ -81,8 +81,8 @@ public class Test_Data {
     @Test
     public void exportCSVTest() {
         Data testData = new Data(TEST_FILE_PATH);
-        String fileName = "fileToCreate";
-        File csvFile = new File(String.format("s-pgraphmaker\\%s.csv", fileName));
+        String fileName = "s-pgraphmaker\\fileToCreate.csv";
+        File csvFile = new File(fileName);
 
         //if file exists from previous test delete it
         if (csvFile.exists()){
@@ -91,7 +91,7 @@ public class Test_Data {
 
         testData.exportCSV(fileName);
 
-        csvFile = new File(String.format("s-pgraphmaker\\%s.csv", fileName));
+        csvFile = new File(fileName);
 
         assertTrue(csvFile.exists(), "File was not created");
     }
@@ -102,14 +102,17 @@ public class Test_Data {
         //TODO: fix this test when the new file export works (paths are different/not pre set since we use UI now)
          Data testData = new Data(TEST_FILE_PATH);
 
-         testData.exportCSV("firstSet");
+         String firstSetFilePath = "s-pgraphmaker\\firstSet.csv";
+         String secondSetFilePath = "s-pgraphmaker\\secondSet.csv";
+
+         testData.exportCSV(firstSetFilePath);
 
          testData.appendRecordToDataFile(1);
 
-         testData.exportCSV("secondSet");
+         testData.exportCSV(secondSetFilePath);
 
-         Data firstSet = new Data("firstSet");
-         Data secondSet = new Data("secondSet");
+         Data firstSet = new Data(firstSetFilePath);
+         Data secondSet = new Data(secondSetFilePath);
 
          int firstSize = firstSet.getTableSize();
          int secondSize = secondSet.getTableSize();

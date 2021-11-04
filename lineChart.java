@@ -133,6 +133,11 @@ public class lineChart extends Application{
         
     }
 
+
+    //gets the LineChart
+    public LineChart getChartObj(){return lChart;}
+
+
     //Create the plot
     public static void main(String args[]){
         launch(args);

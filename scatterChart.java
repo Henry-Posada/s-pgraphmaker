@@ -125,6 +125,11 @@ public class scatterChart extends Application{
         
     }
 
+
+    //Gets the chart object
+    public ScatterChart getChartObj(){return sChart;}
+
+
     //Create the plot
     public static void main(String args[]){
         launch(args);
