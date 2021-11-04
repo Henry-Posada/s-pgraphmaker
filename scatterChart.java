@@ -120,6 +120,7 @@ public class scatterChart extends Application{
         for(int i = 0; i<y.size(); i++){
             series = new XYChart.Series();
             series.getData().add(new XYChart.Data(i+1,y.get(i)));
+            series.setName(labels.get(i));
             sChart.getData().addAll(series);
         }
         
