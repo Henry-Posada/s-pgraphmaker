@@ -281,9 +281,14 @@ public class GUI extends Application
                                     String result = "";
                                     ArrayList<Double> dataResult = calculations.findMode(columnData);
 
-                                    for (int i = 0; i < dataResult.size(); i++){
-                                        result += dataResult.get(i);
+                                    if (dataResult.size() > 0){
+                                        for (int i = 0; i < dataResult.size(); i++){
+                                            result += dataResult.get(i);
+                                        }
+                                    } else {
+                                        result = "There is no mode";
                                     }
+                                    
 
                                     content.setText(result);
                             }
