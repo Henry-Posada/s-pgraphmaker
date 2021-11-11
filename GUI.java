@@ -301,17 +301,26 @@ public class GUI extends Application
         boolean removeYSeries =  chartType.equals(CHART_TYPES[2]);
 
         final String EMPTY_SERIES_OPTION = "None";
+        final String EMPTY_AXIS_OPTION = "Enter the Axis Name";
+        final String EMPTY_TITLE_OPTION = "Enter the Title Name";
 
         popupwindow.initModality(Modality.APPLICATION_MODAL);
         popupwindow.setTitle(String.format("Making a %s.", graphName));
 
         Label explainer = new Label(CHART_EXPLAINER_TEXT[graphIndex]);
-                                       
+                                     
+        TextField  axisXInput = new TextField ("");
+        TextField  axisYInput = new TextField ("");
+        TextField  titleInput = new TextField ("");
+
         ChoiceBox<String> seriesXBox = new ChoiceBox<>();
         ChoiceBox<String> seriesYBox = new ChoiceBox<>();
 
-        Label xLabel = new Label("Series X:");
-        Label yLabel = new Label("Series Y:");
+        titleInput.setPromptText("Graph Title");
+        axisXInput.setPromptText("Axis X");
+        axisYInput.setPromptText("Axis Y");
+        Label seriesXLabel = new Label("Series X:");
+        Label seriesYLabel = new Label("Series Y:");
 
         Button createGraphButton = new Button(String.format("Create a %s", graphName));
 
@@ -332,16 +341,20 @@ public class GUI extends Application
         //TODO: if there are less than 2 columns this will be a problem
         seriesYBox.getSelectionModel().select(1);
 
-        HBox firstLine = new HBox();
+        //line containing the interface to determine labels
+        HBox labelLine = new HBox();
+        HBox seriesLine = new HBox();
         //holds the content (graphs)
         HBox contentLine = new HBox();
         VBox layout= new VBox(10);
 
         //only add Y series if relevant
         if (removeYSeries){
-            firstLine.getChildren().addAll(xLabel, seriesXBox);
+            labelLine.getChildren().addAll(axisXInput, titleInput);
+            seriesLine.getChildren().addAll(seriesXLabel, seriesXBox);
         } else {
-            firstLine.getChildren().addAll(xLabel, seriesXBox, yLabel, seriesYBox);
+            labelLine.getChildren().addAll(axisXInput, axisYInput, titleInput);
+            seriesLine.getChildren().addAll(seriesXLabel, seriesXBox, seriesYLabel, seriesYBox);
         }
                       
 
@@ -403,9 +416,14 @@ public class GUI extends Application
                                 break;
                         }
                     }
-                    chosenGraph.setChartTitle(chartLabel);
-                    chosenGraph.setXLabel(seriesXBox.getValue());
-                    chosenGraph.setYLabel(seriesYBox.getValue());
+
+                    //set the labels if applicable
+                    if (titleInput.getLength() != 0)
+                        chosenGraph.setChartTitle(titleInput.getText());
+                    if (axisXInput.getLength() != 0)
+                        chosenGraph.setXLabel(axisXInput.getText());
+                    if (axisYInput.getLength() != 0)
+                        chosenGraph.setYLabel(axisYInput.getText());
 
                     XYChart contentChart = chosenGraph.getChartObj();
 
@@ -415,7 +433,7 @@ public class GUI extends Application
                 }                            
         });
 
-        layout.getChildren().addAll(explainer, createGraphButton, firstLine, contentLine);            
+        layout.getChildren().addAll(explainer, createGraphButton, labelLine ,seriesLine, contentLine);            
         layout.setAlignment(Pos.CENTER);
             
         Scene scene1= new Scene(layout, 600, 500);
