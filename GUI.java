@@ -416,13 +416,7 @@ public class GUI extends Application
                                 break;
                         }
                     }
-                    chosenGraph.setChartTitle(chartLabel);
-                    chosenGraph.setXLabel(seriesXBox.getValue());
-                    chosenGraph.setYLabel(seriesYBox.getValue());
 
-                    XYChart contentChart = chosenGraph.getChartObj();
-
-<<<<<<< HEAD
                     //set the labels if applicable
                     if (titleInput.getLength() != 0)
                         chosenGraph.setChartTitle(titleInput.getText());
@@ -433,8 +427,6 @@ public class GUI extends Application
 
                     XYChart contentChart = chosenGraph.getChartObj();
 
-=======
->>>>>>> 0168ea2f2d36c2aa7d97dd1688d77525aa08312f
                     //clear in case of already containing a chart
                     contentLine.getChildren().clear();
                     contentLine.getChildren().add(contentChart);
