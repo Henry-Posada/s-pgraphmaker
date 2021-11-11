@@ -8,7 +8,7 @@ import javafx.scene.chart.XYChart;
 import javafx.scene.chart.LineChart;
 
 
-public class lineChart extends Application  implements ISPGraph{
+public class lineChart extends Application implements ISPGraph{
     
     private NumberAxis xAxis = new NumberAxis();
     private NumberAxis yAxis = new NumberAxis();

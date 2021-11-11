@@ -9,7 +9,7 @@ import javafx.scene.Group;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class pieChart extends Application{
+public class pieChart extends Application implements ISPGraph{ 
     ObservableList<PieChart.Data> pieChartData = FXCollections.observableArrayList();
     final PieChart pChart = null;
     ArrayList<String> testCates = new ArrayList<String>(Arrays.asList("Apple", "Oranges", "Peachs", "Pears", "Bananas"));
@@ -68,5 +68,6 @@ public class pieChart extends Application{
     public static void main(String args[]){
         launch(args);
     }
-    //public XYChart getChartObj(){return null;}
+
+    public Chart getChartObj(){return null;}
 }

@@ -2,33 +2,17 @@ import javafx.application.*;
 import javafx.stage.*;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.scene.*;
-import javafx.scene.canvas.*;
-import javafx.scene.chart.LineChart;
-import javafx.scene.chart.XYChart;
+import javafx.scene.chart.Chart;
 import javafx.scene.control.*;
 import javafx.scene.control.Alert.*;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.effect.*;
-import javafx.scene.image.*;
-import javafx.scene.input.*;
 import javafx.scene.layout.*;
-import javafx.scene.paint.*;
-import javafx.scene.shape.*;
-import javafx.scene.text.*;
-import javafx.beans.property.SimpleDoubleProperty;
-import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.value.*;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.event.*; 
-import javafx.animation.*;
 import javafx.geometry.*;
 
 import java.io.File;
 import java.util.*;
-
-import javax.sound.sampled.Line;
 
 //C:\Users\Henry\Desktop\School\Grad\CSC 678\S&PGraphMakerFiles\s-pgraphmaker\ 
 
@@ -96,7 +80,7 @@ public class GUI extends Application
         graphsMenu.getItems().add(new MenuItem("Line Graph"));
         graphsMenu.getItems().add(new MenuItem("Bar Graph"));
 
-        calcuationsMenu.getItems().add(new MenuItem("Mean"));
+        calcuationsMenu.getItems().add(new MenuItem("Mean, Median, Mode, Range"));
 
         informationMenu.getItems().add(new MenuItem("About the Program"));
         //TODO: add graphics to menu items? menuItemList.get(i).setGraphic( new ImageView( new Image(iconArray[i]) ) );
@@ -173,8 +157,6 @@ public class GUI extends Application
                             FileChooser fileChooser = new FileChooser();
                             fileChooser.setTitle("Export");
                             fileChooser.getExtensionFilters().addAll(new ExtensionFilter("Commma Separated Values", ".csv"), new ExtensionFilter("All Files", "*.*"));
-                            //File initialFilePath = new File("myData.csv");
-                            //fileChooser.setInitialDirectory(initialFilePath);
 
                             String filePath = fileChooser.showSaveDialog(mainStage).getAbsolutePath();
 
@@ -238,6 +220,106 @@ public class GUI extends Application
             
 
             //*********BEGIN: Events-Calculations******************/
+            //Mean Median Mode, Range
+            calcuationsMenu.getItems().get(0).setOnAction(
+                new EventHandler<ActionEvent>() 
+                {
+                    public void handle(ActionEvent event) {
+                        Stage popupwindow = new Stage();
+
+                        popupwindow.initModality(Modality.APPLICATION_MODAL);
+                        popupwindow.setTitle("Mean, Median, Mode, Range");
+
+                        Label explainer = new Label("Calculate the Mean, Median, Mode, or Range. Just pick a column.");
+                        Label content = new Label("");
+                        ChoiceBox<String> seriesXBox = new ChoiceBox<>();
+
+                        Button meanButton = new Button("Mean");
+                        Button medianButton = new Button("Median");
+                        Button modeButton = new Button("Mode");
+                        Button rangeButton = new Button("Range");
+
+                        ArrayList<String> attributesList = dataSet.getAttributesList();
+
+                        //NOTE: we start at 1 to not add the record Type
+                        for (int i = 1; i < attributesList.size(); i++){
+                            seriesXBox.getItems().add(attributesList.get(i));
+                        }
+        
+                        //select initial values
+                        seriesXBox.getSelectionModel().select(0);
+
+                        //line containing the interface to determine labels
+                        HBox seriesLine = new HBox();
+                        HBox buttonLine = new HBox();
+                        //holds the content (calculated result)
+                        VBox layout= new VBox(10);
+
+                        meanButton.setOnAction(
+                            new EventHandler<ActionEvent>() {
+                                public void handle(ActionEvent event) {
+                                    ArrayList<Double> columnData = dataSet.getEntireColumn(seriesXBox.getValue());
+
+                                    content.setText(calculations.findMean(columnData) + "");
+                            }
+                        });
+
+                        medianButton.setOnAction(
+                            new EventHandler<ActionEvent>() {
+                                public void handle(ActionEvent event) {
+                                    ArrayList<Double> columnData = dataSet.getEntireColumn(seriesXBox.getValue());
+
+                                    content.setText(calculations.findMedian(columnData) + "");
+                            }
+                        });
+
+                        modeButton.setOnAction(
+                            new EventHandler<ActionEvent>() {
+                                public void handle(ActionEvent event) {
+                                    ArrayList<Double> columnData = dataSet.getEntireColumn(seriesXBox.getValue());
+
+                                    String result = "";
+                                    ArrayList<Double> dataResult = calculations.findMode(columnData);
+
+                                    for (int i = 0; i < dataResult.size(); i++){
+                                        result += dataResult.get(i);
+                                    }
+
+                                    content.setText(result);
+                            }
+                        });
+
+                        rangeButton.setOnAction(
+                            new EventHandler<ActionEvent>() {
+                                public void handle(ActionEvent event) {
+                                    ArrayList<Double> columnData = dataSet.getEntireColumn(seriesXBox.getValue());
+
+                                    String result = "";
+                                    ArrayList<Double> dataResult = calculations.findRange(columnData);
+
+                                    for (int i = 0; i < dataResult.size(); i++){
+                                        result += dataResult.get(i);
+                                    }
+
+                                    content.setText(result);
+                            }
+                        });
+
+                        buttonLine.getChildren().addAll(meanButton, medianButton, modeButton, rangeButton); 
+                        seriesLine.getChildren().add(seriesXBox);
+
+                        layout.getChildren().addAll(explainer, buttonLine, seriesLine, content);            
+                        layout.setAlignment(Pos.CENTER);
+                        buttonLine.setAlignment(Pos.CENTER);
+                        seriesLine.setAlignment(Pos.CENTER);
+                        content.setAlignment(Pos.CENTER);
+                            
+                        Scene scene1= new Scene(layout, 600, 500);
+                            
+                        popupwindow.setScene(scene1);            
+                        popupwindow.showAndWait();
+                    }
+                });
             //*********END: Events-Calculations******************/
             //*********Events******************/
         //*************Menu**************/
@@ -296,13 +378,28 @@ public class GUI extends Application
      * @param graphIndex Index relative to CHART_TYPES
      */
     private void createGraphPopup(String chartType, String graphName, int graphIndex) {
+        //notify the user that there is no data
+        try {
+            //TODO: we should promt them to import data and actually open up the file chooser (or give them a cancel option)
+            //check if the data is effectively empty if so then we throw a null pointer which is slightly redudnat but by making a check like thsi we also properly see if dataSet is null
+            if (dataSet.getTableSize() == 0)
+                throw new NullPointerException();
+        }
+        catch (NullPointerException ex) {
+            Alert infoAlert = new Alert(AlertType.ERROR);
+        
+            infoAlert.setTitle("There is no data");
+            infoAlert.setHeaderText("ERROR"); 
+            infoAlert.setContentText("There is no data to be graphed, please fill in some data first.");        
+            
+            infoAlert.showAndWait();
+        }
+
         Stage popupwindow = new Stage();
 
         boolean removeYSeries =  chartType.equals(CHART_TYPES[2]);
 
         final String EMPTY_SERIES_OPTION = "None";
-        final String EMPTY_AXIS_OPTION = "Enter the Axis Name";
-        final String EMPTY_TITLE_OPTION = "Enter the Title Name";
 
         popupwindow.initModality(Modality.APPLICATION_MODAL);
         popupwindow.setTitle(String.format("Making a %s.", graphName));
@@ -373,21 +470,15 @@ public class GUI extends Application
                         switch (chartType) {
                             case "Scatter Chart":
                                 chosenGraph = new scatterChart(seriesX, seriesY, chartLabel);
-                                chosenGraph.setChartTitle(chartLabel);
-                                chosenGraph.setXLabel(seriesXBox.getValue());
-                                chosenGraph.setYLabel(seriesYBox.getValue());
+
                                 break;
                             case "Line Chart":
                                 chosenGraph = new lineChart(seriesX, seriesY, chartLabel);
-                                chosenGraph.setChartTitle(chartLabel);
-                                chosenGraph.setXLabel(seriesXBox.getValue());
-                                chosenGraph.setYLabel(seriesYBox.getValue());
+
                                 break;
                             case "Bar Chart":
                                 chosenGraph = new barChart(identitfierList, seriesX, chartLabel);
-                                chosenGraph.setChartTitle(chartLabel);
-                                chosenGraph.setXLabel(seriesXBox.getValue());
-                                chosenGraph.setYLabel(seriesYBox.getValue());
+
                                 break;
                             //need a default for compiler
                             default:
@@ -425,7 +516,7 @@ public class GUI extends Application
                     if (axisYInput.getLength() != 0)
                         chosenGraph.setYLabel(axisYInput.getText());
 
-                    XYChart contentChart = chosenGraph.getChartObj();
+                    Chart contentChart = chosenGraph.getChartObj();
 
                     //clear in case of already containing a chart
                     contentLine.getChildren().clear();
@@ -433,8 +524,16 @@ public class GUI extends Application
                 }                            
         });
 
-        layout.getChildren().addAll(explainer, createGraphButton, labelLine ,seriesLine, contentLine);            
+        layout.getChildren().addAll(explainer, createGraphButton, labelLine ,seriesLine, contentLine);
+        
+        //"CSS"
         layout.setAlignment(Pos.CENTER);
+        createGraphButton.setAlignment(Pos.CENTER);
+        labelLine.setAlignment(Pos.CENTER);
+        seriesLine.setAlignment(Pos.CENTER);
+        explainer.setAlignment(Pos.CENTER);
+        explainer.setMaxWidth(400);
+        explainer.setWrapText(true);
             
         Scene scene1= new Scene(layout, 600, 500);
             

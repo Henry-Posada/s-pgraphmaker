@@ -142,6 +142,8 @@ public class calculations{
     //#####################################//
     @Test
         public void findModeTest(){
+            //TODO: test for when there is no Mode
+
             ArrayList<Double> testMode1 = new ArrayList<Double>(Arrays.asList(1.0,1.0,1.0,2.0,2.0));
             ArrayList<Double> testMode2 = new ArrayList<Double>(Arrays.asList(1.0,2.0,2.0));
             ArrayList<Double> testMode3 = new ArrayList<Double>(Arrays.asList(1.0,1.0,2.0,2.0,3.0));
