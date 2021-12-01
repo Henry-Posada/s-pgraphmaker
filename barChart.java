@@ -39,7 +39,6 @@ public class barChart extends Application implements ISPGraph{
         //some test data for barchart
         this.addSeries(x1,y1,"Test1");
         this.addSeries(x2,y2,"Test2");
-        this.setGap(0.0);
         Scene scene  = new Scene(bChart, 800, 600);
         stage.setScene(scene);
         stage.show();
@@ -127,16 +126,6 @@ public class barChart extends Application implements ISPGraph{
     //*******NOTE***************//
     // SOME CHANGES NEED TO BE MADE HERE, EVERYTHING IS ADDED AS 1 CATEGORY, LOOK INTO SPLITTING THEM UP //
     //*******END NOTE***********//
-
-    /**
-     * Changes the gap between different categories, bar graphs contain a gap always, set this to 0 to create a histogram.
-     * 
-     * @param gap: A double representing the gap to leave between bars of different categories.
-     */
-    public void setGap(Double gap){
-        bChart.setCategoryGap(gap);
-        bChart.setBarGap(gap);
-    }
 
 
     //gets the Bar Chart

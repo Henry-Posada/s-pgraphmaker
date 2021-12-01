@@ -8,14 +8,15 @@ import javafx.scene.chart.*;
 import javafx.scene.Group;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 public class pieChart extends Application implements ISPGraph{ 
     ObservableList<PieChart.Data> pieChartData = FXCollections.observableArrayList();
     final PieChart pChart = null;
-    ArrayList<String> testCates = new ArrayList<String>(Arrays.asList("Apple", "Oranges", "Peachs", "Pears", "Bananas"));
-    ArrayList<Double> testDoubles = new ArrayList<Double>(Arrays.asList(15.0,25.0,10.0,30.0,20.0));
+    ArrayList<String> testCates = new ArrayList<String>(Arrays.asList("Apple", "Oranges", "Peachs", "Pears", "Bananas","Grapes"));
     public void start(Stage stage){
-        this.addData(testCates, testDoubles);
+        this.addData(testCates);
         final PieChart chart = new PieChart(pieChartData);
         Scene scene = new Scene(new Group());
         ((Group) scene.getRoot()).getChildren().add(chart);
@@ -28,15 +29,29 @@ public class pieChart extends Application implements ISPGraph{
         final PieChart pChart = new PieChart(pieChartData);
     }
 
-    public pieChart(ArrayList<String> x, ArrayList<Double> y){
-        this.addData(x, y);
+    public pieChart(ArrayList<String> x){
+        this.addData(x);
         final PieChart pChart = new PieChart(pieChartData);
     }
 
-    public void addData(ArrayList<String> x, ArrayList<Double> y){
-        for(int i = 0; i < x.size(); i++){
-        pieChartData.add(new PieChart.Data(x.get(i), y.get(i)));
-       }
+    public void addData(ArrayList<String> x){
+        Map<String,Integer> slicesAndSize = this.getFrequencies(x);
+        for(String element: slicesAndSize.keySet()){
+            pieChartData.add(new PieChart.Data(element, slicesAndSize.get(element)));
+        } 
+    }
+
+    public Map<String,Integer> getFrequencies(ArrayList<String> sclices){
+        Map<String,Integer> freqMap = new HashMap<>();
+        for(String element:sclices){
+            if(!freqMap.containsKey(element)){
+                freqMap.put(element,1);
+            }
+            else if(freqMap.containsKey(element)){
+                freqMap.put(element, freqMap.get(element)+1);
+            }
+        }
+        return freqMap;
     }
 
     public void setLegendSide(String side){
