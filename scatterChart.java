@@ -69,7 +69,7 @@ public class scatterChart extends Application implements ISPGraph{
      * @param label : A String to be set as the X-Axis label.
      */
     public void setXLabel(String label){
-        xAxis.setLabel(label);
+        this. xAxis.setLabel(label);
     }
 
     /**
@@ -79,7 +79,7 @@ public class scatterChart extends Application implements ISPGraph{
      * @param label : A String to be set as the Y-Axis label.
      */
     public void setYLabel(String label){
-        yAxis.setLabel(label);
+        this.yAxis.setLabel(label);
     }
 
     /**
