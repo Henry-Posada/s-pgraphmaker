@@ -29,6 +29,15 @@ public class histogramChart extends Application implements ISPGraph{
         this.setXTicks(x, i);
     }
 
+
+    public histogramChart(ArrayList<Double> x, String label){
+        interval = 0.0;
+        this.setGap(0.0);
+        this.addSeries(x, label);
+        this.setXTicks(x, interval);
+    }
+
+
     public void start(Stage stage){
         //Test using test data.
         this.addSeries(testData, "Testing");

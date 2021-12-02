@@ -35,11 +35,13 @@ public class GUI extends Application
     ArrayList<Menu> menuList = new ArrayList<Menu>();
     ArrayList<MenuItem> menuItemList = new ArrayList<MenuItem>();
 
-    final String[] CHART_TYPES = new String[] {"Scatter Chart", "Line Chart", "Bar Chart"};
-    final String[] CHART_EXPLAINER_TEXT = new String[] {
+    final String[] CHART_TYPES = new String[] {"Scatter Chart", "Line Chart", "Bar Chart", "Pie Chart", "Histogram"};
+    final String[] CHART_EXPLAINER_TEXT = new String[] {//TODO: give accurate explainers
         "Scatter Plot: Pick a series X and series Y for the X axis. If you do not choose an X series the X series will be based off the index of the records.", 
         "LineGraph: Pick a series X and series Y for the X axis. If you do not choose an X series the X series will be based off the index of the records.", 
-        "Bar Chart: Pick a series X and series Y for the X axis. If you do not choose an X series the X series will be based off the index of the records."
+        "Bar Chart: Pick a series X and series Y for the X axis. If you do not choose an X series the X series will be based off the index of the records.",
+        "Pie Chart: Pick a series X and series Y for the X axis. If you do not choose an X series the X series will be based off the index of the records.",
+        "Histogram: Pick a series X and series Y for the X axis. If you do not choose an X series the X series will be based off the index of the records."
     };
 
     private static TableView<List<Object>> dataTable;
@@ -55,8 +57,6 @@ public class GUI extends Application
 
         mainStage.setScene(mainScene);
 
-        //TODO: remove
-        //Scene ymScene = new Scene (new LineChart<>(xAxis, yAxis), 400, 400);
         //*************Menu**************/
         //set up menu bar
         MenuBar menuBar = new MenuBar();
@@ -76,9 +76,11 @@ public class GUI extends Application
         fileMenu.getItems().add(new MenuItem("Export"));
         fileMenu.getItems().add(new MenuItem("Close"));
 
-        graphsMenu.getItems().add(new MenuItem("Scatter Plot"));
-        graphsMenu.getItems().add(new MenuItem("Line Graph"));
-        graphsMenu.getItems().add(new MenuItem("Bar Graph"));
+        graphsMenu.getItems().add(new MenuItem(CHART_TYPES[0]));
+        graphsMenu.getItems().add(new MenuItem(CHART_TYPES[1]));
+        graphsMenu.getItems().add(new MenuItem(CHART_TYPES[2]));
+        graphsMenu.getItems().add(new MenuItem(CHART_TYPES[3]));
+        graphsMenu.getItems().add(new MenuItem(CHART_TYPES[4]));
 
         calcuationsMenu.getItems().add(new MenuItem("Mean, Median, Mode, Range"));
 
@@ -188,8 +190,8 @@ public class GUI extends Application
 
 
             //*********BEGIN: Events-Graphs******************/
-            //Scatter Chart
-            graphsMenu.getItems().get(0).setOnAction(
+                //Scatter Chart
+                graphsMenu.getItems().get(0).setOnAction(
                 new EventHandler<ActionEvent>() 
                 {
                     public void handle(ActionEvent event) {
@@ -198,22 +200,42 @@ public class GUI extends Application
                 });
 
 
-            //Line Chart
-            graphsMenu.getItems().get(1).setOnAction(
+                //Line Chart
+                graphsMenu.getItems().get(1).setOnAction(
                 new EventHandler<ActionEvent>() 
                 {
                     public void handle(ActionEvent event) {
-                        createGraphPopup(CHART_TYPES[1], "My Line Plot", 0);
+                        createGraphPopup(CHART_TYPES[1], "My Line Plot", 1);
                     }
                 });
 
 
-            //Bar Chart
-            graphsMenu.getItems().get(2).setOnAction(
+                //Bar Chart
+                graphsMenu.getItems().get(2).setOnAction(
                 new EventHandler<ActionEvent>() 
                 {
                     public void handle(ActionEvent event) {
-                        createGraphPopup(CHART_TYPES[2], "My Bar Chart", 0);
+                        createGraphPopup(CHART_TYPES[2], "My Bar Chart", 2);
+                    }
+                });
+
+
+                //Pie Chart
+                graphsMenu.getItems().get(3).setOnAction(
+                new EventHandler<ActionEvent>() 
+                {
+                    public void handle(ActionEvent event) {
+                        createGraphPopup(CHART_TYPES[3], "My Pie Chart", 3);
+                    }
+                });
+
+
+                //Histogram
+                graphsMenu.getItems().get(4).setOnAction(
+                new EventHandler<ActionEvent>() 
+                {
+                    public void handle(ActionEvent event) {
+                        createGraphPopup(CHART_TYPES[4], "My Histogram", 4);
                     }
                 });
             //*********END: Events-Graphs******************/
@@ -402,7 +424,7 @@ public class GUI extends Application
 
         Stage popupwindow = new Stage();
 
-        boolean removeYSeries =  chartType.equals(CHART_TYPES[2]);
+        boolean removeYSeries =  chartType.equals(CHART_TYPES[2]) || chartType.equals(CHART_TYPES[3]) || chartType.equals(CHART_TYPES[4]);
 
         final String EMPTY_SERIES_OPTION = "None";
 
@@ -450,15 +472,19 @@ public class GUI extends Application
         HBox contentLine = new HBox();
         VBox layout= new VBox(10);
 
+        //if its NOT a histogram add the series x label
+        if(!chartType.equals(CHART_TYPES[3])){
+            labelLine.getChildren().add(axisXInput);
+        }
+
         //only add Y series if relevant
         if (removeYSeries){
-            labelLine.getChildren().addAll(axisXInput, titleInput);
-            seriesLine.getChildren().addAll(seriesXLabel, seriesXBox);
+            labelLine.getChildren().add(titleInput);
+            seriesLine.getChildren().add(seriesXBox);
         } else {
             labelLine.getChildren().addAll(axisXInput, axisYInput, titleInput);
-            seriesLine.getChildren().addAll(seriesXLabel, seriesXBox, seriesYLabel, seriesYBox);
+            seriesLine.getChildren().addAll(seriesXBox, seriesYLabel, seriesYBox);
         }
-                      
 
         createGraphButton.setOnAction(
             new EventHandler<ActionEvent>() {
@@ -485,6 +511,20 @@ public class GUI extends Application
                                 chosenGraph = new barChart(identitfierList, seriesX, chartLabel);
 
                                 break;
+                            case "Pie Chart":
+                                //if the x series is at default value use the identifiers
+                                if(seriesXBox.getValue().equals(EMPTY_SERIES_OPTION)){
+                                    chosenGraph = new pieChart(identitfierList);
+                                }
+                                else {
+                                    chosenGraph = new pieChart(dataSet.getEntireColumnAsStringList(seriesXBox.getValue()));
+                                }                                
+
+                                break;
+                            case "Histogram":
+                                chosenGraph = new histogramChart(seriesX, chartLabel);
+
+                                break;
                             //need a default for compiler
                             default:
                                 chosenGraph = new scatterChart(seriesX, seriesY, chartLabel);
@@ -504,7 +544,7 @@ public class GUI extends Application
                             case "Bar Chart":
                                 chosenGraph = new barChart(seriesX, identitfierList);
 
-                                break;
+                                break;                            
                             //need a default for compiler
                             default:
                                 chosenGraph = new scatterChart(seriesX, identitfierList);

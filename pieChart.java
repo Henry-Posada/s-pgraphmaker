@@ -13,7 +13,7 @@ import java.util.Map;
 
 public class pieChart extends Application implements ISPGraph{ 
     ObservableList<PieChart.Data> pieChartData = FXCollections.observableArrayList();
-    final PieChart pChart = null;
+    PieChart pChart = null;
     ArrayList<String> testCates = new ArrayList<String>(Arrays.asList("Apple", "Oranges", "Peachs", "Pears", "Bananas","Grapes"));
     public void start(Stage stage){
         this.addData(testCates);
@@ -26,12 +26,12 @@ public class pieChart extends Application implements ISPGraph{
 
     //Constructor
     public pieChart(){
-        final PieChart pChart = new PieChart(pieChartData);
+        pChart = new PieChart(pieChartData);
     }
 
     public pieChart(ArrayList<String> x){
         this.addData(x);
-        final PieChart pChart = new PieChart(pieChartData);
+        pChart = new PieChart(pieChartData);
     }
 
     public void addData(ArrayList<String> x){
@@ -84,5 +84,5 @@ public class pieChart extends Application implements ISPGraph{
         launch(args);
     }
 
-    public Chart getChartObj(){return null;}
+    public Chart getChartObj(){return pChart;}
 }

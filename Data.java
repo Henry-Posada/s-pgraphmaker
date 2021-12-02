@@ -210,6 +210,47 @@ final int COLUMN_OFFSET = 1;
 
 
     /**
+     * Gets the entire column of data based on the attribute name.
+     * If there is no match it will return the first column.
+     * @param attributeName
+     * @return
+     */
+    public ArrayList<String> getEntireColumnAsStringList(String attributeName){
+        try {
+            ArrayList<Double> columnOfDoubles = new ArrayList<Double>();
+
+            for (int i = 0; i < recordSize; i++){
+                if (attributesList.get(i).equals(attributeName))
+                    columnOfDoubles = getEntireColumn(i);
+            }
+
+            return convertDoubleListToStringList(columnOfDoubles);
+        } catch (Exception e) {
+            //TODO: handle exception     
+            return new ArrayList<String>(); 
+        }
+    }
+
+
+    /**
+     * Converts an ArrayList of Doubles to an ArrayList of Strings. We do this because it is easier to get the column of the already parsed
+     * data and convert it back to strings than to try to go back into the file. (Since the whole point of us keeping track of columns using the double arraylist
+     * was because there isnt a good way to navigate csv files.)
+     * @param listOfDoubles
+     * @return
+     */
+    private ArrayList<String> convertDoubleListToStringList(ArrayList<Double> listOfDoubles){
+        ArrayList<String> result = new ArrayList<String>();
+
+        for (int i = 0; i < listOfDoubles.size(); i++) {
+            result.add(listOfDoubles.get(i) + "");
+        }
+
+        return result;
+    }
+
+
+    /**
      * Gets the identifier for the specified record.
      * @param recordIndex
      * @return
