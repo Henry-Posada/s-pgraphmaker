@@ -6,13 +6,18 @@ import javafx.scene.chart.Chart;
 import javafx.scene.control.*;
 import javafx.scene.control.Alert.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.image.WritableImage;
 import javafx.scene.layout.*;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.embed.swing.SwingFXUtils;
 import javafx.event.*; 
 import javafx.geometry.*;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.*;
+
+import javax.imageio.ImageIO;
 
 //C:\Users\Henry\Desktop\School\Grad\CSC 678\S&PGraphMakerFiles\s-pgraphmaker\ 
 
@@ -32,6 +37,8 @@ public class GUI extends Application
  
     Data dataSet;
 
+    Stage mainStageRef;
+
     ArrayList<Menu> menuList = new ArrayList<Menu>();
     ArrayList<MenuItem> menuItemList = new ArrayList<MenuItem>();
 
@@ -48,6 +55,8 @@ public class GUI extends Application
 
     public void start(Stage mainStage) 
     {
+        mainStageRef = mainStage;
+        
         mainStage.setTitle("S-P Graph Maker");
         
         //set up main section
@@ -185,10 +194,7 @@ public class GUI extends Application
                         {
                             System.exit(0);
                         }
-                });//end click evennt for "Close"
-
-
-
+                });//end click event for "Close"
             //*********BEGIN: Events-Graphs******************/
                 //Scatter Chart
                 graphsMenu.getItems().get(0).setOnAction(
@@ -447,6 +453,10 @@ public class GUI extends Application
         Label seriesYLabel = new Label("Series Y:");
 
         Button createGraphButton = new Button(String.format("Create a %s", graphName));
+        Button saveGraphAsImageButton = new Button("Save Graph As Image");
+
+        //start button as invisible
+        saveGraphAsImageButton.setVisible(true);
 
         ArrayList<String> attributesList = dataSet.getAttributesList();
         ArrayList<String> identitfierList = dataSet.getIdentifiersList();
@@ -470,7 +480,10 @@ public class GUI extends Application
         HBox seriesLine = new HBox();
         //holds the content (graphs)
         HBox contentLine = new HBox();
+        HBox saveButtonLine = new HBox();
         VBox layout= new VBox(10);
+
+        saveButtonLine.getChildren().add(saveGraphAsImageButton);
 
         //if its NOT a histogram add the series x label
         if(!chartType.equals(CHART_TYPES[3])){
@@ -480,11 +493,40 @@ public class GUI extends Application
         //only add Y series if relevant
         if (removeYSeries){
             labelLine.getChildren().add(titleInput);
-            seriesLine.getChildren().add(seriesXBox);
+            seriesLine.getChildren().addAll(seriesXLabel, seriesXBox);
         } else {
-            labelLine.getChildren().addAll(axisXInput, axisYInput, titleInput);
-            seriesLine.getChildren().addAll(seriesXBox, seriesYLabel, seriesYBox);
+            labelLine.getChildren().addAll(axisYInput, titleInput);
+            seriesLine.getChildren().addAll(seriesXLabel, seriesXBox, seriesYLabel, seriesYBox);
         }
+
+        //START EVENT HANDLERS
+        saveGraphAsImageButton.setOnAction(
+            new EventHandler<ActionEvent>(){
+                public void handle(ActionEvent event){
+                    FileChooser fileChooser = new FileChooser();
+                    fileChooser.setTitle("Save Image");
+                    fileChooser.getExtensionFilters().addAll(new ExtensionFilter("Images", ".PNG"), new ExtensionFilter("All Files", "*.*"));
+
+                    String filePath = fileChooser.showSaveDialog(mainStageRef).getAbsolutePath();
+
+                    Stage popupwindow = new Stage();
+                    Scene scene = new Scene(new Group(), 595, 400);
+
+                    popupwindow.setTitle("Charts Example");
+                    ((Group) scene.getRoot()).getChildren().add(contentLine);
+
+                    WritableImage image = scene.snapshot(null);
+                    File file = new File(filePath);
+                    try {
+                        ImageIO.write(SwingFXUtils.fromFXImage(image, null), "PNG", file);
+                    } catch (IOException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    }
+                }
+            }
+        );//end save graph as image on click
+
 
         createGraphButton.setOnAction(
             new EventHandler<ActionEvent>() {
@@ -566,10 +608,13 @@ public class GUI extends Application
                     //clear in case of already containing a chart
                     contentLine.getChildren().clear();
                     contentLine.getChildren().add(contentChart);
-                }                            
-        });
 
-        layout.getChildren().addAll(explainer, createGraphButton, labelLine ,seriesLine, contentLine);
+                    saveGraphAsImageButton.setVisible(true);
+                }                            
+        });//end create graph onclick
+        //END EVENT HANDLERS
+
+        layout.getChildren().addAll(explainer, createGraphButton, labelLine ,seriesLine, contentLine, saveButtonLine);
         
         //"CSS"
         layout.setAlignment(Pos.CENTER);
