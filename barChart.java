@@ -127,6 +127,15 @@ public class barChart extends Application implements ISPGraph{
     // SOME CHANGES NEED TO BE MADE HERE, EVERYTHING IS ADDED AS 1 CATEGORY, LOOK INTO SPLITTING THEM UP //
     //*******END NOTE***********//
 
+        /**
+     * Set the bounds of the X-Axis and the amount of units between each tick.
+     * 
+     * 
+     * @param lowerBound : A double representing the lower bound.
+     * @param upperBound : A double representing the upper bound.
+     * @param tickUnit : A double representing the amount of units between each tick.
+     */
+    public void setXAxis(double lowerBound, double upperBound, double tickUnit){}
 
     //gets the Bar Chart
     public BarChart getChartObj(){return bChart;}

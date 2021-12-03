@@ -133,6 +133,8 @@ public class lineChart extends Application implements ISPGraph{
         
     }
 
+    
+
 
     //gets the LineChart
     public LineChart getChartObj(){return lChart;}

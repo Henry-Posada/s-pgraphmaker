@@ -80,9 +80,34 @@ public class pieChart extends Application implements ISPGraph{
 
     public void setYLabel(String Label){}
 
+    //***THESE METHODS ARE HERE FOR THE INTERFACE TO WORK***//
+
+        /**
+     * Set the bounds of the X-Axis and the amount of units between each tick.
+     * 
+     * 
+     * @param lowerBound : A double representing the lower bound.
+     * @param upperBound : A double representing the upper bound.
+     * @param tickUnit : A double representing the amount of units between each tick.
+     */
+    public void setXAxis(double lowerBound, double upperBound, double tickUnit){}
+
+    /**
+     * Set the bounds of the Y-Axis and the amount of units between each tick.
+     * 
+     * 
+     * @param lowerBound : A double representing the lower bound.
+     * @param upperBound : A double representing the upper bound.
+     * @param tickUnit : A double representing the amount of units between each tick.
+     */
+    public void setYAxis(double lowerBound, double upperBound, double tickUnit){}
+
+    public Chart getChartObj(){return pChart;}
+
+    
     public static void main(String args[]){
         launch(args);
     }
 
-    public Chart getChartObj(){return pChart;}
+    
 }
