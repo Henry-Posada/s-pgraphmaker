@@ -521,7 +521,7 @@ public class GUI extends Application
 
         //only add Y series if relevant
         if (removeXSeries){
-            yScaleModifierLine.getChildren().addAll(xScaleLowerBoundInput, xScaleUpperBoundInput, xScaleTickInput);
+            yScaleModifierLine.getChildren().addAll(yScaleLowerBoundInput, yScaleUpperBoundInput, yScaleTickInput);
             //NOTE: we still want the x axis label input incase they want to edit it
             labelLine.getChildren().addAll(axisXInput, axisYInput, titleInput);
             seriesLine.getChildren().addAll(seriesYLabel, seriesYBox);
@@ -640,10 +640,10 @@ public class GUI extends Application
                         chosenGraph.setXLabel(axisXInput.getText());
                     if (axisYInput.getLength() != 0)
                         chosenGraph.setYLabel(axisYInput.getText());
-                    if (xScaleLowerBoundInput.getLength() != 0 && xScaleUpperBoundInput.getLength() != 0 && xScaleTickInput.getLength() != 0)
-                        chosenGraph.setXAxis(Double.parseDouble(xScaleLowerBoundInput.getText()), Double.parseDouble(xScaleUpperBoundInput.getText()), Double.parseDouble(xScaleTickInput.getText()));
-                        if (yScaleLowerBoundInput.getLength() != 0 && yScaleUpperBoundInput.getLength() != 0 && yScaleTickInput.getLength() != 0)
-                        chosenGraph.setYAxis(Double.parseDouble(yScaleLowerBoundInput.getText()), Double.parseDouble(yScaleUpperBoundInput.getText()), Double.parseDouble(yScaleTickInput.getText()));
+                    if (numTextFieldsValuesValid(new TextField[] {xScaleLowerBoundInput, xScaleUpperBoundInput, xScaleTickInput}))
+                        chosenGraph.setXAxis(Double.parseDouble(xScaleLowerBoundInput.getText()), Double.parseDouble(xScaleUpperBoundInput.getText()), Math.abs(Double.parseDouble(xScaleTickInput.getText())));
+                    if (numTextFieldsValuesValid(new TextField[] {yScaleLowerBoundInput, yScaleUpperBoundInput, yScaleTickInput}))
+                        chosenGraph.setYAxis(Double.parseDouble(yScaleLowerBoundInput.getText()), Double.parseDouble(yScaleUpperBoundInput.getText()), Math.abs(Double.parseDouble(yScaleTickInput.getText())));
 
                     contentChart = chosenGraph.getChartObj();
 
@@ -685,27 +685,60 @@ public class GUI extends Application
     }//end createGraphPopup
 
 
-    //helper function
+    //helper functions
+    /**
+     * Validates if all passed in textfields (THAT SHOULD BE NUMBER BASED) are actually a valid number and not either empty or just '-' or '+'.
+     * @param arrayOfTextFields
+     * @return
+     */
+    public static boolean numTextFieldsValuesValid(TextField[] arrayOfTextFields){
+        try {
+            for (TextField textField : arrayOfTextFields) {
+                //no empty fields
+                if(textField.getLength() == 0){
+                    return false;
+                }
+
+                String text = textField.getText();
+
+                //text is only '-' or '+'
+                if (textField.getLength() == 1 && (text.equals("-") || text.equals("+"))){
+                    return false;
+                }
+            }
+
+            return true;
+        } catch (NumberFormatException e) {
+            //not valid double 
+            return false;
+        }
+        
+    }
+
+
     /**
      * Takes an array of TextInputs and makes them only accept number format
      * @param arrayOfTextFields
      */
     public static void setAsNumTextField(TextField[] arrayOfTextFields){
-        DecimalFormat numberFormat = new DecimalFormat("#.#");
-
         for (TextField textField : arrayOfTextFields) {
             textField.setTextFormatter(new TextFormatter<>(c -> {
                 if (c.getControlNewText().isEmpty()) {
                     return c;
                 }
 
-                ParsePosition parsePosition = new ParsePosition(0);
-                Object object = numberFormat.parse(c.getControlNewText(), parsePosition);
+                try {
+                    //if the whole string is just - or + they are just signifying a sign
+                    if (c.getControlNewText().equals("-") || c.getControlNewText().equals("+")){
+                        return c;
+                    }
 
-                if (object == null || parsePosition.getIndex() < c.getControlNewText().length()) {
-                    return null;
-                } else {
+                    //try to parse if it fails then somethings wrong and we arent updating the textfield
+                    Double.parseDouble(c.getControlNewText());
+
                     return c;
+                } catch (Exception e) {
+                    return null;
                 }
             }));
         }
