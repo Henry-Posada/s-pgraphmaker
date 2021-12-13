@@ -640,10 +640,27 @@ public class GUI extends Application
                         chosenGraph.setXLabel(axisXInput.getText());
                     if (axisYInput.getLength() != 0)
                         chosenGraph.setYLabel(axisYInput.getText());
-                    if (numTextFieldsValuesValid(new TextField[] {xScaleLowerBoundInput, xScaleUpperBoundInput, xScaleTickInput}))
-                        chosenGraph.setXAxis(Double.parseDouble(xScaleLowerBoundInput.getText()), Double.parseDouble(xScaleUpperBoundInput.getText()), Math.abs(Double.parseDouble(xScaleTickInput.getText())));
-                    if (numTextFieldsValuesValid(new TextField[] {yScaleLowerBoundInput, yScaleUpperBoundInput, yScaleTickInput}))
-                        chosenGraph.setYAxis(Double.parseDouble(yScaleLowerBoundInput.getText()), Double.parseDouble(yScaleUpperBoundInput.getText()), Math.abs(Double.parseDouble(yScaleTickInput.getText())));
+                    //set the scales if applicable
+                    if (numTextFieldsValuesValid(new TextField[] {xScaleLowerBoundInput, xScaleUpperBoundInput, xScaleTickInput})){
+                        double xScaleLowerBoundValue = Double.parseDouble(xScaleLowerBoundInput.getText());
+                        double xScaleUpperBoundValue = Double.parseDouble(xScaleUpperBoundInput.getText());
+
+                        //determine if the "lower" is actually lower and vice versa
+                        double xLowerBound = xScaleLowerBoundValue < xScaleUpperBoundValue ? xScaleLowerBoundValue : xScaleUpperBoundValue ;
+                        double xUpperBound = xScaleLowerBoundValue < xScaleUpperBoundValue ? xScaleUpperBoundValue : xScaleLowerBoundValue ;
+
+                        chosenGraph.setXAxis(xLowerBound, xUpperBound, Math.abs(Double.parseDouble(xScaleTickInput.getText())));
+                    }
+                    if (numTextFieldsValuesValid(new TextField[] {yScaleLowerBoundInput, yScaleUpperBoundInput, yScaleTickInput})){
+                        double yScaleLowerBoundValue = Double.parseDouble(yScaleLowerBoundInput.getText());
+                        double yScaleUpperBoundValue = Double.parseDouble(yScaleUpperBoundInput.getText());
+
+                        //determine if the "lower" is actually lower and vice versa
+                        double yLowerBound = yScaleLowerBoundValue < yScaleUpperBoundValue ? yScaleLowerBoundValue : yScaleUpperBoundValue ;
+                        double yUpperBound = yScaleLowerBoundValue < yScaleUpperBoundValue ? yScaleUpperBoundValue : yScaleLowerBoundValue ;
+
+                        chosenGraph.setYAxis(yLowerBound, yUpperBound, Math.abs(Double.parseDouble(xScaleTickInput.getText())));
+                    }
 
                     contentChart = chosenGraph.getChartObj();
 
