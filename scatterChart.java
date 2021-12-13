@@ -43,6 +43,7 @@ public class scatterChart extends Application implements ISPGraph{
      * @param tickUnit : A double representing the amount of units between each tick.
      */
     public void setXAxis(double lowerBound, double upperBound, double tickUnit){
+        this.xAxis.setAutoRanging(false);
         this.xAxis.setLowerBound(lowerBound);
         this.xAxis.setUpperBound(upperBound);
         this.xAxis.setTickUnit(tickUnit);
@@ -57,6 +58,7 @@ public class scatterChart extends Application implements ISPGraph{
      * @param tickUnit : A double representing the amount of units between each tick.
      */
     public void setYAxis(double lowerBound, double upperBound, double tickUnit){
+        this.yAxis.setAutoRanging(false);
         this.yAxis.setLowerBound(lowerBound);
         this.yAxis.setUpperBound(upperBound);
         this.yAxis.setTickUnit(tickUnit);
