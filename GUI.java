@@ -15,9 +15,13 @@ import javafx.geometry.*;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.DecimalFormat;
+import java.text.ParsePosition;
 import java.util.*;
+import java.util.function.UnaryOperator;
 
 import javax.imageio.ImageIO;
+import javax.swing.plaf.metal.MetalBorders.TextFieldBorder;
 
 //C:\Users\Henry\Desktop\School\Grad\CSC 678\S&PGraphMakerFiles\s-pgraphmaker\ 
 
@@ -38,6 +42,9 @@ public class GUI extends Application
     Data dataSet;
 
     Stage mainStageRef;
+    Scene graphCreationPopup;
+
+    Chart contentChart;
 
     ArrayList<Menu> menuList = new ArrayList<Menu>();
     ArrayList<MenuItem> menuItemList = new ArrayList<MenuItem>();
@@ -124,11 +131,13 @@ public class GUI extends Application
             {
                     public void handle(ActionEvent event)
                     {
-                        //TODO: find a way to clear the table properly
+                        //clear the data cells
+                        dataTable.getColumns().clear();
+                        //clear the columns (otherwise we will just add new ones every import)
+                        dataTable.getItems().clear();
+                        
                         FileChooser fileChooser = new FileChooser();
                         File selectedFile = fileChooser.showOpenDialog(mainStage);
-
-                        System.out.println(selectedFile.getAbsolutePath());
 
                         dataSet = new Data(selectedFile.getAbsolutePath());
 
@@ -148,6 +157,7 @@ public class GUI extends Application
                                 
                                 row.add(cell);
                             }
+
                             dataTable.getItems().add(row);
                         }                        
                     }
@@ -292,6 +302,7 @@ public class GUI extends Application
                             }
                         });
 
+
                         medianButton.setOnAction(
                             new EventHandler<ActionEvent>() {
                                 public void handle(ActionEvent event) {
@@ -300,6 +311,7 @@ public class GUI extends Application
                                     content.setText(calculations.findMedian(columnData) + "");
                             }
                         });
+
 
                         modeButton.setOnAction(
                             new EventHandler<ActionEvent>() {
@@ -322,6 +334,7 @@ public class GUI extends Application
                             }
                         });
 
+
                         rangeButton.setOnAction(
                             new EventHandler<ActionEvent>() {
                                 public void handle(ActionEvent event) {
@@ -337,6 +350,7 @@ public class GUI extends Application
                                     content.setText(result);
                             }
                         });
+
 
                         buttonLine.getChildren().addAll(meanButton, medianButton, modeButton, rangeButton); 
                         seriesLine.getChildren().add(seriesXBox);
@@ -356,13 +370,11 @@ public class GUI extends Application
             //*********END: Events-Calculations******************/
             //*********Events******************/
         //*************Menu**************/
-
-        //*************Data Table***************/
         dataTable = new TableView();
-        dataTable.setEditable(true);
+        //TODO: if we can figure out how to make editing more fluid with dynamic data sizes
+        //dataTable.setEditable(true);
 
         mainContent.getChildren().add(dataTable);
-        //*************Data Table***************/
 
         //place our "wrapping" objects like the menu, data-table, graphs etc
         root.setTop(menuBar);
@@ -382,10 +394,8 @@ public class GUI extends Application
     private static boolean addTableColumn( String newProperty, ArrayList<Double> newData){
         try {
             TableColumn<String, String> newColumn = new TableColumn<String, String>(newProperty);
-            //TODO: actually figure out what the below does
-            newColumn.setCellValueFactory(new PropertyValueFactory<>(newProperty));
 
-            //dataTable.getColumns().add(newColumn);
+            newColumn.setCellValueFactory(new PropertyValueFactory<>(newProperty));
 
             return true;
         } catch (Exception e) {
@@ -398,6 +408,7 @@ public class GUI extends Application
     //from stack overflow
     private TableColumn<List<Object>, ?> createColumn(int index) {        
         TableColumn<List<Object>, String> col = new TableColumn<>(dataSet.getAttributesList().get(index));
+
         col.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().get(index).toString()));
         
         return col ;        
@@ -429,8 +440,9 @@ public class GUI extends Application
         }
 
         Stage popupwindow = new Stage();
-
-        boolean removeYSeries =  chartType.equals(CHART_TYPES[2]) || chartType.equals(CHART_TYPES[3]) || chartType.equals(CHART_TYPES[4]);
+        boolean removeXSeries = chartType.equals(CHART_TYPES[2]) || chartType.equals(CHART_TYPES[3]) || chartType.equals(CHART_TYPES[4]);
+        //pie chart doesnt use the scale
+        boolean hideScale = chartType.equals(CHART_TYPES[3]);
 
         final String EMPTY_SERIES_OPTION = "None";
 
@@ -443,20 +455,37 @@ public class GUI extends Application
         TextField  axisYInput = new TextField ("");
         TextField  titleInput = new TextField ("");
 
+        TextField  xScaleLowerBoundInput = new TextField ("");
+        TextField  xScaleUpperBoundInput = new TextField ("");
+        TextField  xScaleTickInput = new TextField ("");
+
+        TextField  yScaleLowerBoundInput = new TextField ("");
+        TextField  yScaleUpperBoundInput = new TextField ("");
+        TextField  yScaleTickInput = new TextField ("");
+
+        //set as number text fields
+        setAsNumTextField(new TextField[] {xScaleLowerBoundInput, xScaleUpperBoundInput, xScaleTickInput, yScaleLowerBoundInput, yScaleUpperBoundInput, yScaleTickInput});
+
+        xScaleLowerBoundInput.setPromptText("X Scale Lower Bound");
+        xScaleUpperBoundInput.setPromptText("X Scale Upper Bound");
+        xScaleTickInput.setPromptText("X Scale Tick Interval");
+
+        yScaleLowerBoundInput.setPromptText("Y Scale Lower Bound");
+        yScaleUpperBoundInput.setPromptText("Y Scale Upper Bound");
+        yScaleTickInput.setPromptText("Y Scale Tick Interval");
+
         ChoiceBox<String> seriesXBox = new ChoiceBox<>();
         ChoiceBox<String> seriesYBox = new ChoiceBox<>();
 
         titleInput.setPromptText("Graph Title");
         axisXInput.setPromptText("Axis X");
         axisYInput.setPromptText("Axis Y");
+
         Label seriesXLabel = new Label("Series X:");
         Label seriesYLabel = new Label("Series Y:");
 
         Button createGraphButton = new Button(String.format("Create a %s", graphName));
         Button saveGraphAsImageButton = new Button("Save Graph As Image");
-
-        //start button as invisible
-        saveGraphAsImageButton.setVisible(true);
 
         ArrayList<String> attributesList = dataSet.getAttributesList();
         ArrayList<String> identitfierList = dataSet.getIdentifiersList();
@@ -480,22 +509,26 @@ public class GUI extends Application
         HBox seriesLine = new HBox();
         //holds the content (graphs)
         HBox contentLine = new HBox();
+        HBox xScaleModifierLine = new HBox();
+        HBox yScaleModifierLine = new HBox();
         HBox saveButtonLine = new HBox();
         VBox layout= new VBox(10);
 
+        //start button as invisible
+        saveButtonLine.setVisible(false);
+
         saveButtonLine.getChildren().add(saveGraphAsImageButton);
 
-        //if its NOT a histogram add the series x label
-        if(!chartType.equals(CHART_TYPES[3])){
-            labelLine.getChildren().add(axisXInput);
-        }
-
         //only add Y series if relevant
-        if (removeYSeries){
-            labelLine.getChildren().add(titleInput);
-            seriesLine.getChildren().addAll(seriesXLabel, seriesXBox);
+        if (removeXSeries){
+            yScaleModifierLine.getChildren().addAll(xScaleLowerBoundInput, xScaleUpperBoundInput, xScaleTickInput);
+            //NOTE: we still want the x axis label input incase they want to edit it
+            labelLine.getChildren().addAll(axisXInput, axisYInput, titleInput);
+            seriesLine.getChildren().addAll(seriesYLabel, seriesYBox);
         } else {
-            labelLine.getChildren().addAll(axisYInput, titleInput);
+            xScaleModifierLine.getChildren().addAll(xScaleLowerBoundInput, xScaleUpperBoundInput, xScaleTickInput);
+            yScaleModifierLine.getChildren().addAll(yScaleLowerBoundInput, yScaleUpperBoundInput, yScaleTickInput);
+            labelLine.getChildren().addAll(axisXInput, axisYInput, titleInput);
             seriesLine.getChildren().addAll(seriesXLabel, seriesXBox, seriesYLabel, seriesYBox);
         }
 
@@ -504,6 +537,7 @@ public class GUI extends Application
             new EventHandler<ActionEvent>(){
                 public void handle(ActionEvent event){
                     FileChooser fileChooser = new FileChooser();
+
                     fileChooser.setTitle("Save Image");
                     fileChooser.getExtensionFilters().addAll(new ExtensionFilter("Images", ".PNG"), new ExtensionFilter("All Files", "*.*"));
 
@@ -513,16 +547,20 @@ public class GUI extends Application
                     Scene scene = new Scene(new Group(), 595, 400);
 
                     popupwindow.setTitle("Charts Example");
-                    ((Group) scene.getRoot()).getChildren().add(contentLine);
+                    ((Group) scene.getRoot()).getChildren().add(contentChart);
 
                     WritableImage image = scene.snapshot(null);
                     File file = new File(filePath);
+
                     try {
                         ImageIO.write(SwingFXUtils.fromFXImage(image, null), "PNG", file);
                     } catch (IOException e) {
                         // TODO Auto-generated catch block
                         e.printStackTrace();
                     }
+
+                    //put the chart back
+                    contentLine.getChildren().add(contentChart);
                 }
             }
         );//end save graph as image on click
@@ -534,12 +572,12 @@ public class GUI extends Application
                     ArrayList<Double> seriesX = dataSet.getEntireColumn(seriesXBox.getValue());
                     ArrayList<Double> seriesY = dataSet.getEntireColumn(seriesYBox.getValue());
 
-                    boolean hasSeriesY = !seriesYBox.getValue().equals(EMPTY_SERIES_OPTION);
-                    String chartLabel = hasSeriesY ? seriesXBox.getValue() + " by " + seriesYBox.getValue() : seriesXBox.getValue();
+                    boolean hasSeriesX = !seriesXBox.getValue().equals(EMPTY_SERIES_OPTION);
+                    String chartLabel = hasSeriesX ? seriesXBox.getValue() + " by " + seriesYBox.getValue() : seriesXBox.getValue();
 
                     ISPGraph chosenGraph;
 
-                    if (hasSeriesY){
+                    if (hasSeriesX){
                         switch (chartType) {
                             case "Scatter Chart":
                                 chosenGraph = new scatterChart(seriesX, seriesY, chartLabel);
@@ -550,21 +588,21 @@ public class GUI extends Application
 
                                 break;
                             case "Bar Chart":
-                                chosenGraph = new barChart(identitfierList, seriesX, chartLabel);
+                                chosenGraph = new barChart(identitfierList, seriesY, chartLabel);
 
                                 break;
                             case "Pie Chart":
-                                //if the x series is at default value use the identifiers
-                                if(seriesXBox.getValue().equals(EMPTY_SERIES_OPTION)){
+                                //if the y series is at default value use the identifiers
+                                if(seriesYBox.getValue().equals(EMPTY_SERIES_OPTION)){
                                     chosenGraph = new pieChart(identitfierList);
                                 }
                                 else {
-                                    chosenGraph = new pieChart(dataSet.getEntireColumnAsStringList(seriesXBox.getValue()));
+                                    chosenGraph = new pieChart(dataSet.getEntireColumnAsStringList(seriesYBox.getValue()));
                                 }                                
 
                                 break;
                             case "Histogram":
-                                chosenGraph = new histogramChart(seriesX, chartLabel);
+                                chosenGraph = new histogramChart(seriesY, chartLabel);
 
                                 break;
                             //need a default for compiler
@@ -576,20 +614,20 @@ public class GUI extends Application
                     } else{
                         switch (chartType) {
                             case "Scatter Chart":
-                                chosenGraph = new scatterChart(seriesX, identitfierList);
+                                chosenGraph = new scatterChart(seriesY, identitfierList);
 
                                 break;
                             case "Line Graph":
-                                chosenGraph = new lineChart(seriesX, identitfierList);
+                                chosenGraph = new lineChart(seriesY, identitfierList);
 
                                 break;
                             case "Bar Chart":
-                                chosenGraph = new barChart(seriesX, identitfierList);
+                                chosenGraph = new barChart(seriesY, identitfierList);
 
                                 break;                            
                             //need a default for compiler
                             default:
-                                chosenGraph = new scatterChart(seriesX, identitfierList);
+                                chosenGraph = new scatterChart(seriesY, identitfierList);
 
                                 break;
                         }
@@ -602,32 +640,74 @@ public class GUI extends Application
                         chosenGraph.setXLabel(axisXInput.getText());
                     if (axisYInput.getLength() != 0)
                         chosenGraph.setYLabel(axisYInput.getText());
+                    if (xScaleLowerBoundInput.getLength() != 0 && xScaleUpperBoundInput.getLength() != 0 && xScaleTickInput.getLength() != 0)
+                        chosenGraph.setXAxis(Double.parseDouble(xScaleLowerBoundInput.getText()), Double.parseDouble(xScaleUpperBoundInput.getText()), Double.parseDouble(xScaleTickInput.getText()));
+                        if (yScaleLowerBoundInput.getLength() != 0 && yScaleUpperBoundInput.getLength() != 0 && yScaleTickInput.getLength() != 0)
+                        chosenGraph.setYAxis(Double.parseDouble(yScaleLowerBoundInput.getText()), Double.parseDouble(yScaleUpperBoundInput.getText()), Double.parseDouble(yScaleTickInput.getText()));
 
-                    Chart contentChart = chosenGraph.getChartObj();
+                    contentChart = chosenGraph.getChartObj();
 
                     //clear in case of already containing a chart
                     contentLine.getChildren().clear();
                     contentLine.getChildren().add(contentChart);
 
-                    saveGraphAsImageButton.setVisible(true);
+                    //start button as invisible
+                    saveButtonLine.setVisible(true);
                 }                            
         });//end create graph onclick
         //END EVENT HANDLERS
 
-        layout.getChildren().addAll(explainer, createGraphButton, labelLine ,seriesLine, contentLine, saveButtonLine);
+        if (hideScale)
+        {
+            xScaleModifierLine.setVisible(false);
+            yScaleModifierLine.setVisible(false);
+        }            
+
+        layout.getChildren().addAll(explainer, createGraphButton, labelLine, xScaleModifierLine, yScaleModifierLine ,seriesLine, contentLine, saveButtonLine);
         
         //"CSS"
         layout.setAlignment(Pos.CENTER);
         createGraphButton.setAlignment(Pos.CENTER);
         labelLine.setAlignment(Pos.CENTER);
         seriesLine.setAlignment(Pos.CENTER);
+        xScaleModifierLine.setAlignment(Pos.CENTER);
+        yScaleModifierLine.setAlignment(Pos.CENTER);
+        contentLine.setAlignment(Pos.CENTER);
         explainer.setAlignment(Pos.CENTER);
+        saveButtonLine.setAlignment(Pos.CENTER);
         explainer.setMaxWidth(400);
         explainer.setWrapText(true);
             
-        Scene scene1= new Scene(layout, 600, 500);
+        graphCreationPopup = new Scene(layout, 600, 500);
             
-        popupwindow.setScene(scene1);            
+        popupwindow.setScene(graphCreationPopup);            
         popupwindow.showAndWait();
     }//end createGraphPopup
+
+
+    //helper function
+    /**
+     * Takes an array of TextInputs and makes them only accept number format
+     * @param arrayOfTextFields
+     */
+    public static void setAsNumTextField(TextField[] arrayOfTextFields){
+        DecimalFormat numberFormat = new DecimalFormat("#.#");
+
+        for (TextField textField : arrayOfTextFields) {
+            textField.setTextFormatter(new TextFormatter<>(c -> {
+                if (c.getControlNewText().isEmpty()) {
+                    return c;
+                }
+
+                ParsePosition parsePosition = new ParsePosition(0);
+                Object object = numberFormat.parse(c.getControlNewText(), parsePosition);
+
+                if (object == null || parsePosition.getIndex() < c.getControlNewText().length()) {
+                    return null;
+                } else {
+                    return c;
+                }
+            }));
+        }
+    }
 }
