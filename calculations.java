@@ -11,18 +11,12 @@ import java.util.Map;
 
 //This class contains all static calculations methods. This includes calculations like mean, median, mode, and range.
 public class calculations{
-    public static void main(String args[]){
-       //Initial load of data//TODO: make the file name based on input and allow for absolute path with file explorer
-       Data testData = new Data("Data");
-    }
-
     /** 
      * Returns a double representing the mean of the passed ArrayList<Double> object. The method will iterate through the ArrayList with a foreach method
      *  adding all elements in the ArrayList to a double variable mean where it is then divided by the number of elements in the ArrayList.
      * 
      * @param findMeanOf : An ArrayList<Double> of doubles that the user wants to find the mean of.
      * @return : Returns the calculated mean of the passed ArrayList<Double> findMeanOf.
-     * 
      */
     public static double findMean(ArrayList<Double> findMeanOf){
         //Variable mean, to be used by adding all values of findMeanOf and then dividing by the length of findMeanOf.

@@ -27,10 +27,8 @@ import javax.swing.plaf.metal.MetalBorders.TextFieldBorder;
 
 
 /**
- * Homework8 make a picture that involves at least one rectangle, polygon, oval, text, color, gradient and effect
- * 
  * @author Scott Shannon
- * @version Version 1
+ * @version Version 2.0
  */
 public class GUI extends Application 
 {
@@ -50,12 +48,12 @@ public class GUI extends Application
     ArrayList<MenuItem> menuItemList = new ArrayList<MenuItem>();
 
     final String[] CHART_TYPES = new String[] {"Scatter Chart", "Line Chart", "Bar Chart", "Pie Chart", "Histogram"};
-    final String[] CHART_EXPLAINER_TEXT = new String[] {//TODO: give accurate explainers
-        "Scatter Plot: Pick a series X and series Y for the X axis. If you do not choose an X series the X series will be based off the index of the records.", 
-        "LineGraph: Pick a series X and series Y for the X axis. If you do not choose an X series the X series will be based off the index of the records.", 
-        "Bar Chart: Pick a series X and series Y for the X axis. If you do not choose an X series the X series will be based off the index of the records.",
-        "Pie Chart: Pick a series X and series Y for the X axis. If you do not choose an X series the X series will be based off the index of the records.",
-        "Histogram: Pick a series X and series Y for the X axis. If you do not choose an X series the X series will be based off the index of the records."
+    final String[] CHART_EXPLAINER_TEXT = new String[] {
+        "Scatter Plot: Pick a series X and series Y. If you do not choose an X series the X series will be based off the index of the records.", 
+        "LineGraph: Pick a series X and series Y. If you do not choose an X series the X series will be based off the index of the records.", 
+        "Bar Chart: Pick a Y. If you do not choose a series the series will be based off the index of the records.",
+        "Pie Chart: Pick a series. If you do not choose a series the series will be based off the index of the records.",
+        "Histogram: Pick a Y. If you do not choose a series the series will be based off the index of the records."
     };
 
     private static TableView<List<Object>> dataTable;
@@ -101,7 +99,6 @@ public class GUI extends Application
         calcuationsMenu.getItems().add(new MenuItem("Mean, Median, Mode, Range"));
 
         informationMenu.getItems().add(new MenuItem("About the Program"));
-        //TODO: add graphics to menu items? menuItemList.get(i).setGraphic( new ImageView( new Image(iconArray[i]) ) );
 
         //add our menu "columns"
         for (int i = 0; i < menuList.size(); i++) {            
@@ -176,6 +173,7 @@ public class GUI extends Application
                                 throw new NullPointerException();
 
                             FileChooser fileChooser = new FileChooser();
+
                             fileChooser.setTitle("Export");
                             fileChooser.getExtensionFilters().addAll(new ExtensionFilter("Commma Separated Values", ".csv"), new ExtensionFilter("All Files", "*.*"));
 
@@ -263,6 +261,22 @@ public class GUI extends Application
                 new EventHandler<ActionEvent>() 
                 {
                     public void handle(ActionEvent event) {
+                        try {
+                            //TODO: we should promt them to import data and actually open up the file chooser (or give them a cancel option)
+                            //check if the data is effectively empty if so then we throw a null pointer which is slightly redudnat but by making a check like thsi we also properly see if dataSet is null
+                            if (dataSet.getTableSize() == 0)
+                                throw new NullPointerException();
+                        }
+                        catch (NullPointerException ex) {
+                            Alert infoAlert = new Alert(AlertType.ERROR);
+                        
+                            infoAlert.setTitle("There is no data");
+                            infoAlert.setHeaderText("ERROR"); 
+                            infoAlert.setContentText("There is no data to be calculated, please import some data first.");        
+                            
+                            infoAlert.showAndWait();
+                        }
+
                         Stage popupwindow = new Stage();
 
                         popupwindow.initModality(Modality.APPLICATION_MODAL);
@@ -324,11 +338,14 @@ public class GUI extends Application
                                     if (dataResult.size() > 0){
                                         for (int i = 0; i < dataResult.size(); i++){
                                             result += dataResult.get(i);
+
+                                            if (dataResult.size() > 1 && i == 0){
+                                                result += " - ";
+                                            }
                                         }
                                     } else {
                                         result = "There is no mode";
-                                    }
-                                    
+                                    }                                    
 
                                     content.setText(result);
                             }
@@ -345,6 +362,10 @@ public class GUI extends Application
 
                                     for (int i = 0; i < dataResult.size(); i++){
                                         result += dataResult.get(i);
+
+                                        if (dataResult.size() > 1 && i == 0){
+                                            result += " - ";
+                                        }
                                     }
 
                                     content.setText(result);
@@ -399,7 +420,6 @@ public class GUI extends Application
 
             return true;
         } catch (Exception e) {
-            //TODO: handle exception
             return false;
         }
     }
@@ -434,7 +454,7 @@ public class GUI extends Application
         
             infoAlert.setTitle("There is no data");
             infoAlert.setHeaderText("ERROR"); 
-            infoAlert.setContentText("There is no data to be graphed, please fill in some data first.");        
+            infoAlert.setContentText("There is no data to be graphed, please fill import some data first.");        
             
             infoAlert.showAndWait();
         }
@@ -519,16 +539,20 @@ public class GUI extends Application
 
         saveButtonLine.getChildren().add(saveGraphAsImageButton);
 
+        if (!chartType.equals(CHART_TYPES[3])){
+            labelLine.getChildren().addAll(axisXInput, axisYInput);
+        }
+
         //only add Y series if relevant
         if (removeXSeries){
             yScaleModifierLine.getChildren().addAll(yScaleLowerBoundInput, yScaleUpperBoundInput, yScaleTickInput);
             //NOTE: we still want the x axis label input incase they want to edit it
-            labelLine.getChildren().addAll(axisXInput, axisYInput, titleInput);
+            labelLine.getChildren().add(titleInput);
             seriesLine.getChildren().addAll(seriesYLabel, seriesYBox);
         } else {
             xScaleModifierLine.getChildren().addAll(xScaleLowerBoundInput, xScaleUpperBoundInput, xScaleTickInput);
             yScaleModifierLine.getChildren().addAll(yScaleLowerBoundInput, yScaleUpperBoundInput, yScaleTickInput);
-            labelLine.getChildren().addAll(axisXInput, axisYInput, titleInput);
+            labelLine.getChildren().add(titleInput);
             seriesLine.getChildren().addAll(seriesXLabel, seriesXBox, seriesYLabel, seriesYBox);
         }
 
@@ -659,7 +683,7 @@ public class GUI extends Application
                         double yLowerBound = yScaleLowerBoundValue < yScaleUpperBoundValue ? yScaleLowerBoundValue : yScaleUpperBoundValue ;
                         double yUpperBound = yScaleLowerBoundValue < yScaleUpperBoundValue ? yScaleUpperBoundValue : yScaleLowerBoundValue ;
 
-                        chosenGraph.setYAxis(yLowerBound, yUpperBound, Math.abs(Double.parseDouble(xScaleTickInput.getText())));
+                        chosenGraph.setYAxis(yLowerBound, yUpperBound, Math.abs(Double.parseDouble(yScaleTickInput.getText())));
                     }
 
                     contentChart = chosenGraph.getChartObj();
